@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 
@@ -14,12 +15,18 @@ build/
 *.env
 
 # Logs
+=======
+# Logs
+logs
+*.log
+>>>>>>> f715b86 (Initial Vite React setup)
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+<<<<<<< HEAD
 # OS Files
 .DS_Store
 Thumbs.db
@@ -27,6 +34,18 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+=======
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+>>>>>>> f715b86 (Initial Vite React setup)
 *.suo
 *.ntvs*
 *.njsproj

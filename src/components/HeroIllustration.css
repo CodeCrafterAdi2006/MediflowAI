@@ -1,0 +1,238 @@
+.hero-illo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 380px;
+}
+
+.hero-illo__card {
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
+
+/* --- Prescription card --- */
+.hero-illo__card--rx {
+  position: relative;
+  width: 168px;
+  padding: 20px 18px;
+  overflow: hidden;
+  transform: rotate(-4deg);
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.rx-card__header {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--blue);
+  margin-bottom: 18px;
+  font-style: italic;
+}
+
+.rx-scribble {
+  height: 9px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #cbd5e1, #e2e8f0);
+  margin-bottom: 16px;
+  transform: skewX(-8deg);
+}
+
+.rx-scribble--1 { width: 88%; }
+.rx-scribble--2 { width: 65%; }
+.rx-scribble--3 { width: 92%; }
+.rx-scribble--4 { width: 50%; }
+.rx-scribble--short { width: 40%; }
+
+.rx-card__scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  color: var(--blue);
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0) 0%, rgba(37, 99, 235, 0.16) 50%, rgba(37, 99, 235, 0) 100%);
+  animation: scan 3.2s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0% { top: 8%; opacity: 0; }
+  10% { opacity: 1; }
+  50% { top: 82%; opacity: 1; }
+  60% { opacity: 0; }
+  100% { top: 82%; opacity: 0; }
+}
+
+/* --- Arrow --- */
+.hero-illo__arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin: 0 -6px;
+}
+
+/* --- Schedule card --- */
+.hero-illo__card--schedule {
+  width: 268px;
+  padding: 22px 20px;
+  transform: rotate(2deg);
+  animation: floatSlow 6s ease-in-out infinite 0.4s;
+}
+
+.schedule-card__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.schedule-row:first-of-type {
+  border-top: none;
+}
+
+.schedule-dot {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  display: grid;
+  place-items: center;
+}
+
+.schedule-dot--done {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.schedule-dot--active {
+  border-color: var(--blue);
+  position: relative;
+}
+
+.schedule-dot--active::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+.schedule-row__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.schedule-row__text strong {
+  font-size: 0.88rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.schedule-row__text span {
+  font-size: 0.75rem;
+  color: var(--slate-light);
+}
+
+.schedule-time {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--slate);
+  white-space: nowrap;
+}
+
+.schedule-row--done .schedule-time,
+.schedule-row--done strong {
+  color: var(--slate-light);
+}
+
+.schedule-row--done .schedule-row__text strong {
+  text-decoration: line-through;
+  text-decoration-color: var(--green);
+}
+
+/* --- Floating chips --- */
+.hero-illo__chip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink);
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+.hero-illo__chip--reminder {
+  top: -6px;
+  right: 18%;
+  color: var(--blue);
+  animation-delay: 1.2s;
+}
+
+.hero-illo__chip--adherence {
+  bottom: 6%;
+  left: -4%;
+  color: var(--green-deep);
+  animation-delay: 0.7s;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--r, 0deg)); }
+}
+
+@media (max-width: 1080px) {
+  .hero-illo { transform: scale(0.92); transform-origin: left center; }
+}
+
+@media (max-width: 720px) {
+  .hero-illo {
+    transform: scale(0.86);
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: unset;
+    padding: 30px 0;
+  }
+  .hero-illo__arrow { display: none; }
+  .hero-illo__card--rx { transform: rotate(-2deg); }
+  .hero-illo__card--schedule { transform: rotate(1deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-illo__card--rx,
+  .hero-illo__card--schedule,
+  .hero-illo__chip,
+  .rx-card__scanline,
+  .schedule-dot--active::after {
+    animation: none !important;
+  }
+}

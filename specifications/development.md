@@ -1,4 +1,4 @@
-﻿# Development Guide - MediFlow AI
+# Development Guide - MediFlow AI
 
 This document is the **developer execution manual**. It translates the milestone structure from `task_plan.md` into concrete, file-level build steps for each phase. Read this alongside `design.md` (for data contracts), `Engineering.md` (for environment configs), and `workflow.md` (for UX flow context).
 
@@ -26,11 +26,11 @@ Steps:
 **Files**: `server/src/test-gemini.ts`, `server/src/lib/gemini.ts`
 
 Steps:
-1. Create `server/src/lib/gemini.ts` - a singleton Gemini client module wrapping `@google/generative-ai`. Export a single `getGeminiClient()` function that reads `GEMINI_API_KEY` from env and throws a descriptive error if it is missing.
-2. In `test-gemini.ts`, send a minimal text prompt ("Say hello in JSON format.") and log the response.
+1. Create `server/src/lib/gemini.ts` - a singleton Gemini client module wrapping `@google/generative-ai`. Export a function `getGeminiClient(keyIndex?: number)` that parses the comma-separated `GEMINI_API_KEYS` string from environment variables and returns a client using the key at the given index. It should log which key index is currently active.
+2. In `test-gemini.ts`, write a script that sends a test prompt. Test that if a key is invalid, the client automatically attempts to fall back to the next key in the comma-separated list.
 3. Run `npx tsx src/test-gemini.ts` from the `server/` directory.
 
-**Acceptance Test**: Console prints a valid JSON-shaped response from Gemini. No API errors.
+**Acceptance Test**: Console prints a valid response from Gemini, showing successful loading of at least one key from the list.
 
 ---
 
@@ -116,9 +116,14 @@ export async function parsePrescriptionImage(
 
 3. Use `response.text()` and `JSON.parse()` to extract the response. Validate that the top-level `medicines` array is present. If `JSON.parse` fails, return `{ rawOcrText: rawText, medicines: [] }` - this triggers the manual fallback path in the frontend.
 
-4. Wrap the entire Gemini call in a timeout (12 seconds) + 2 retries with exponential backoff (500ms, 1000ms) for 503 or rate-limit errors.
+4. **Resilience & Fallback Wrapper**:
+   - Wrap the API execution in a loop that iterates through your comma-separated `GEMINI_API_KEYS`. If a key encounters a rate limit (429) or service error (503), catch the error, log a warning, and immediately retry using the next key in the list.
+   - If all Gemini keys are exhausted or fail, fall back to the secondary providers:
+     - Check if `GROQ_API_KEYS` or `OPENROUTER_API_KEYS` are available.
+     - Call Groq (using Llama-3-vision/Llama-3-70b) or OpenRouter (using Llama-3/GPT-4o) with the image or the raw OCR text to attempt the structured JSON extraction.
+     - If all fallbacks fail, log a critical error and return `{ rawOcrText: "", medicines: [] }` to let the user enter their details manually in the wizard.
 
-**Acceptance Test**: Call the function with a real prescription image file and assert the returned object contains `medicines.length > 0` with the expected fields populated.
+**Acceptance Test**: Call the function with a real prescription image file. Simulate a Gemini failure (e.g. by passing dummy/blocked keys first) and verify it successfully rotates through keys, falls back to the secondary model provider (if configured), and handles the final output gracefully without crashing.
 
 ---
 

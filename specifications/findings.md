@@ -22,3 +22,7 @@
 
 7. **Sleep Boundary Clamping Uses Nearest-Boundary Logic**: For interval-based dose schedules where a computed time falls in the sleep window (23:00-06:00), the time is clamped to the **nearest** boundary — not always to 23:00. Times between 23:00 and 03:00 (closer to 23:00) clamp to 23:00; times between 03:00 and 06:00 (closer to 06:00) clamp to 06:00. This matches `design.md` Section 5.1 exactly and prevents the scheduler from pulling a 3:00 AM dose seven hours earlier than needed.
 
+8. **Multi-Provider Fallback & Key Rotation for Hackathon Resilience**: To prevent demo-blocking API rate-limit errors or key exhaustion during development, the application supports:
+   - **Key Rotation**: Multiple keys can be supplied as a comma-separated list in env variables (`GEMINI_API_KEYS`, `GROQ_API_KEYS`, `OPENROUTER_API_KEYS`). The client rotates keys sequentially on failure.
+   - **Model Provider Fallback**: The client prioritizes Gemini (for native structured multimodal output). If the Gemini client fails or is rate-limited across all keys, it falls back to Groq (Llama-3-vision/Llama-3-70b via OpenRouter) to translate raw text, ensuring the application remains operational.
+

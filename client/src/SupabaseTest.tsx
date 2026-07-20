@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from './lib/supabaseClient.js';
+import { supabase } from './lib/supabaseClient';
 
 export default function SupabaseTest() {
   const [loading, setLoading] = useState(true);

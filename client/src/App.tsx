@@ -15,13 +15,19 @@ import CTA from './components/CTA.jsx'
 // @ts-ignore
 import Footer from './components/Footer.jsx'
 
+import SupabaseTest from './SupabaseTest';
+
 export default function App() {
   return (
     <>
       <Navbar />
       <main>
         <Hero />
+        <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
+          <SupabaseTest />
+        </div>
         <Problem />
+
         <Solution />
         <HowItWorks />
         <Features />

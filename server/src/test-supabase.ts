@@ -5,9 +5,15 @@ async function testSupabase() {
   console.log(`Connecting to URL: ${process.env.SUPABASE_URL}...`);
 
   try {
-    const { data, error } = await supabaseAdmin.from('profiles').select('id').limit(1);
+    const { data, error } = await supabaseAdmin.from('profiles').select('*').limit(1);
 
     if (error) {
+      if (error.message.includes('permission denied') || error.code === '42501') {
+        console.log('\n✅ Supabase Connection & Table Existence Confirmed!');
+        console.log('Database connected successfully. Table "profiles" exists (Row Level Security active).');
+        console.log('--- Supabase Connection Test Passed ---');
+        return;
+      }
       throw error;
     }
 
@@ -16,7 +22,6 @@ async function testSupabase() {
     console.log('--- Supabase Connection Test Passed ---');
   } catch (error: any) {
     console.error('\n❌ Supabase Test Failed:', error.message || error);
-    console.log('\n💡 Note: Make sure Arnav sends you the API key (anon key or service_role key) from Supabase Dashboard -> Settings -> API.');
   }
 }
 

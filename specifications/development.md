@@ -394,6 +394,18 @@ Steps:
 1. Load current user profile from Supabase on mount.
 2. Four time inputs for meal times (Breakfast, Lunch, Dinner, Bedtime) with sensible defaults.
 3. Text inputs for Caregiver Name and Caregiver Email.
+4. "Save Profile" button POSTs to `/api/profile/update` or Supabase upsert.
+
+---
+
+### 5.7 Dark Mode Support (Assigned to Om / Frontend)
+**Files**: `client/src/components/Navbar.jsx`, `client/src/index.css`
+
+Steps:
+1. Add a theme toggle switch (`☀️ / 🌙`) in the top Navbar.
+2. Store active theme mode (`light` | `dark`) in `localStorage` and set `document.documentElement.setAttribute('data-theme', theme)`.
+3. Configure CSS custom tokens for `--bg-body`, `--ink`, `--bg-card`, `--line` in `client/src/index.css` for dark mode (`[data-theme="dark"]`).
+4. Ensure all React application views (`UploadPage`, `ReviewPage`, `DashboardPage`, `CaregiverPage`) adapt seamlessly.
 4. "Save Profile" button saves to Supabase and shows a confirmation toast.
 
 **Acceptance Test (Phase 5)**: Full end-to-end walkthrough - signup, set profile, upload test prescription, confirm parsed schedule, check off one dose, click Simulate, verify caregiver alert card appears on `/caregiver`.

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import prescriptionsRouter from './routes/prescriptions.js';
+import scheduleRouter from './routes/schedule.js';
 
 dotenv.config();
 
@@ -22,6 +23,9 @@ app.get('/health', (req, res) => {
 
 // Prescriptions API Routes (Phase 2.4)
 app.use('/api/prescriptions', prescriptionsRouter);
+
+// Daily Schedule & Adherence Demo Routes (Phase 3)
+app.use('/api/schedule', scheduleRouter);
 
 // Start Server
 app.listen(PORT, () => {

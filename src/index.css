@@ -31,6 +31,18 @@
   --line: #E2E8F0;
   --line-soft: #EDF2F7;
 
+  /* Surfaces — cards/panels (--surface) and the subtle alt-background
+     used for section-to-section gradients (--surface-alt). Kept as
+     separate tokens (rather than reusing --paper) so dark mode can
+     override them independently. */
+  --surface: #FFFFFF;
+  --surface-alt: #FAFCFF;
+  --surface-translucent: rgba(255, 255, 255, 0.75);
+
+  /* Fixed-dark surface used by the footer — intentionally does NOT
+     flip with theme, since the footer is dark in both modes. */
+  --surface-inverse: #0F172A;
+
   --font-display: 'Sora', 'Segoe UI', sans-serif;
   --font-body: 'Inter', 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -60,6 +72,7 @@ body {
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4 {

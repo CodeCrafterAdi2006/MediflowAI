@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Activity, Menu, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import ThemeToggle from './ThemeToggle.jsx'
 import './Navbar.css'
 
 const LINKS = [
@@ -37,18 +39,22 @@ export default function Navbar() {
         </nav>
 
         <div className="navbar__actions">
-          <a href="#get-started" className="btn btn-primary navbar__cta">
+          <ThemeToggle />
+          <Link to="/app/upload" className="btn btn-primary navbar__cta">
             Get Started
-          </a>
+          </Link>
         </div>
 
-        <button
-          className="navbar__burger"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="navbar__mobile-actions">
+          <ThemeToggle />
+          <button
+            className="navbar__burger"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -58,9 +64,9 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          <a href="#get-started" className="btn btn-primary" onClick={() => setOpen(false)}>
+          <Link to="/app/upload" className="btn btn-primary" onClick={() => setOpen(false)}>
             Get Started
-          </a>
+          </Link>
         </div>
       )}
     </header>

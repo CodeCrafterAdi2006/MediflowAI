@@ -7,7 +7,7 @@
 }
 
 .hero-illo__card {
-  background: #fff;
+  background: var(--surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-card);
@@ -182,7 +182,7 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: 999px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-soft);
   font-size: 0.75rem;

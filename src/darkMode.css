@@ -1,0 +1,60 @@
+/* ===================================================================
+   MediFlow AI — Dark Mode
+   Overrides the design tokens defined in index.css. Because every
+   component already reads colors from CSS variables (var(--ink),
+   var(--surface), var(--line), etc.), this file is the ONLY place
+   dark mode needs to live — no component CSS has to change again.
+
+   Activated by adding data-theme="dark" to <html> (see ThemeToggle.jsx
+   and main.jsx).
+   =================================================================== */
+
+[data-theme='dark'] {
+  --ink: #F1F5F9;
+  --slate: #94A3B8;
+  --slate-light: #64748B;
+
+  --blue: #3B82F6;
+  --blue-deep: #60A5FA;
+  --blue-light: #93C5FD;
+
+  --green: #34D399;
+  --green-deep: #6EE7B7;
+
+  --paper: #0B1220;
+  --surface: #111A2E;
+  --surface-alt: #0E1728;
+  --surface-translucent: rgba(11, 18, 32, 0.75);
+
+  /* Footer was already a fixed dark navy in light mode — push it one
+     shade darker so it still reads as a distinct band, not the same
+     surface as the page. */
+  --surface-inverse: #060A14;
+
+  --mint: rgba(16, 185, 129, 0.14);
+  --sky: rgba(59, 130, 246, 0.14);
+
+  --line: #1E293B;
+  --line-soft: #17223A;
+
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lift: 0 20px 40px rgba(59, 130, 246, 0.22);
+}
+
+/* Problem section's icon chips use a light-red literal (not a token,
+   since it's a semantic "warning" color rather than a theme color) —
+   nudge it so it doesn't look washed out on a dark surface. */
+[data-theme='dark'] .problem__icon {
+  background: rgba(220, 38, 38, 0.16);
+  color: #F87171;
+}
+
+/* Features hover state swaps icon bg to solid green; keep contrast
+   text white in both themes (already is) — nothing else needed. */
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme='dark'] body {
+    transition: background 0.35s ease, color 0.35s ease;
+  }
+}

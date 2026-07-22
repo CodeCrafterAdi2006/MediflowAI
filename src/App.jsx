@@ -1,25 +1,27 @@
-import Navbar from './components/Navbar.jsx'
-import Hero from './components/Hero.jsx'
-import Problem from './components/Problem.jsx'
-import Solution from './components/Solution.jsx'
-import HowItWorks from './components/HowItWorks.jsx'
-import Features from './components/Features.jsx'
-import CTA from './components/CTA.jsx'
-import Footer from './components/Footer.jsx'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import LandingPage from './pages/LandingPage.jsx'
+import AppLayout from './app/AppLayout.jsx'
+import UploadPage from './app/UploadPage.jsx'
+import ReviewPage from './app/ReviewPage.jsx'
+import DashboardPage from './app/DashboardPage.jsx'
+import CaregiverPage from './app/CaregiverPage.jsx'
+import ProfilePage from './app/ProfilePage.jsx'
 
 export default function App() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <Hero />
-        <Problem />
-        <Solution />
-        <HowItWorks />
-        <Features />
-        <CTA />
-      </main>
-      <Footer />
-    </>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+
+      <Route path="/app" element={<AppLayout />}>
+        <Route index element={<Navigate to="upload" replace />} />
+        <Route path="upload" element={<UploadPage />} />
+        <Route path="review" element={<ReviewPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="caregiver" element={<CaregiverPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }

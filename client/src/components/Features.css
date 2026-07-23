@@ -1,5 +1,6 @@
 .features {
-  background: linear-gradient(180deg, #FAFCFF 0%, #fff 100%);
+  background: linear-gradient(180deg, var(--surface-alt) 0%, var(--paper) 100%);
+  transition: background 0.3s ease;
 }
 
 .features__grid {
@@ -11,9 +12,9 @@
 .features__card {
   padding: 30px 26px;
   border-radius: var(--radius-md);
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
 }
 
 .features__card:hover {

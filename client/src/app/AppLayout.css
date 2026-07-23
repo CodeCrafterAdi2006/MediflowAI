@@ -1,0 +1,122 @@
+.app-shell {
+  min-height: 100vh;
+  background: var(--paper);
+  transition: background 0.3s ease;
+}
+
+.app-shell__nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--surface-translucent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.app-shell__row {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.app-shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.app-shell__brand span {
+  color: var(--blue);
+}
+
+.app-shell__mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--blue), var(--green));
+  color: #fff;
+}
+
+.app-shell__tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.app-shell__tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--slate);
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app-shell__tab:hover {
+  color: var(--ink);
+  background: var(--surface-alt);
+}
+
+.app-shell__tab--active {
+  color: var(--blue);
+  background: var(--sky);
+  font-weight: 600;
+}
+
+.app-shell__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.app-shell__back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--slate);
+  transition: color 0.2s ease;
+}
+
+.app-shell__back:hover {
+  color: var(--blue);
+}
+
+.app-shell__content {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+@media (max-width: 760px) {
+  .app-shell__row {
+    gap: 14px;
+  }
+  .app-shell__back span {
+    display: none;
+  }
+  .app-shell__tab span {
+    display: none;
+  }
+  .app-shell__tab {
+    padding: 10px;
+  }
+}

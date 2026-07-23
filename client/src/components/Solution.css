@@ -1,5 +1,6 @@
 .solution {
-  background: linear-gradient(180deg, #fff 0%, #FAFCFF 100%);
+  background: linear-gradient(180deg, var(--paper) 0%, var(--surface-alt) 100%);
+  transition: background 0.3s ease;
 }
 
 .solution__bento {
@@ -13,8 +14,8 @@
   padding: 28px 26px;
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
-  background: #fff;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--surface);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .solution__tile:hover {

@@ -1,39 +1,34 @@
+import { Routes, Route, Navigate } from 'react-router-dom'
 // @ts-ignore
-import Navbar from './components/Navbar.jsx'
+import LandingPage from './pages/LandingPage.jsx'
 // @ts-ignore
-import Hero from './components/Hero.jsx'
+import AppLayout from './app/AppLayout.jsx'
 // @ts-ignore
-import Problem from './components/Problem.jsx'
+import UploadPage from './app/UploadPage.jsx'
 // @ts-ignore
-import Solution from './components/Solution.jsx'
+import ReviewPage from './app/ReviewPage.jsx'
 // @ts-ignore
-import HowItWorks from './components/HowItWorks.jsx'
+import DashboardPage from './app/DashboardPage.jsx'
 // @ts-ignore
-import Features from './components/Features.jsx'
+import CaregiverPage from './app/CaregiverPage.jsx'
 // @ts-ignore
-import CTA from './components/CTA.jsx'
-// @ts-ignore
-import Footer from './components/Footer.jsx'
-
-import SupabaseTest from './SupabaseTest';
+import ProfilePage from './app/ProfilePage.jsx'
 
 export default function App() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <Hero />
-        <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
-          <SupabaseTest />
-        </div>
-        <Problem />
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
 
-        <Solution />
-        <HowItWorks />
-        <Features />
-        <CTA />
-      </main>
-      <Footer />
-    </>
+      <Route path="/app" element={<AppLayout />}>
+        <Route index element={<Navigate to="upload" replace />} />
+        <Route path="upload" element={<UploadPage />} />
+        <Route path="review" element={<ReviewPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="caregiver" element={<CaregiverPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }

@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import useReveal from '../hooks/useReveal.js'
 import './CTA.css'
 
@@ -13,9 +14,9 @@ export default function CTA() {
             <h2>Ready to take medicines on time, every time?</h2>
             <p>Upload your first prescription and see your schedule in under a minute.</p>
           </div>
-          <a href="#top" className="btn btn-primary cta__btn">
+          <Link to="/app/upload" className="btn btn-primary cta__btn">
             Get Started <ArrowRight size={18} />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

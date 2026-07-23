@@ -16,7 +16,8 @@
 | **Phase 1: Environment & Integrations** | **100% Completed** | Health route `GET /health`, multi-provider env setup (`.env`), Google Fonts (`Sora`, `Inter`, `IBM Plex Mono`). |
 | **Phase 2: AI OCR & Scheduling Engine** | **100% Completed** | Multimodal Gemini OCR parser, Groq/OpenRouter fallback, frequency mapping, sleep boundary clamping algorithms. |
 | **Phase 3: Database & Adherence APIs** | **100% Completed** | Supabase connection verified (`profiles` table check), `GET /today`, `POST /log-dose`, `POST /simulate-time`, `GET /caregiver/alerts`. |
-| **Frontend UI Foundation** | **In Progress** | Merged Om's landing page UI, global CSS design tokens, `<SupabaseTest />` component. React app views assigned to Om. |
+| **Phase 4: Calendar Sync Service** | **100% Completed** | `CalendarClient` interface, `MockCalendarClient` with HIPAA privacy sanitization & `.ics` file generation, integrated with `/confirm`. |
+| **Phase 5: React Frontend & API Wiring** | **100% Completed** | Merged Om's landing page & app views (`UploadPage`, `ReviewPage`, `DashboardPage`, `CaregiverPage`), global CSS design tokens, Dark Mode switch, and live API integration via `client/src/lib/api.js`. |
 
 ---
 

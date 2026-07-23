@@ -1,5 +1,5 @@
 /* ===================================================================
-   MediFlow AI — Design Tokens & Global CSS
+   MediFlow AI — Design Tokens
    Palette:
      --ink:        #0F172A  (near-black navy, primary text)
      --slate:      #475569  (secondary text)
@@ -16,8 +16,6 @@
      Utility  — 'IBM Plex Mono'   (times, dosages, data — reads like a chart label)
    =================================================================== */
 
-@import "tailwindcss";
-
 :root {
   --ink: #0F172A;
   --slate: #475569;
@@ -32,6 +30,18 @@
   --paper: #FFFFFF;
   --line: #E2E8F0;
   --line-soft: #EDF2F7;
+
+  /* Surfaces — cards/panels (--surface) and the subtle alt-background
+     used for section-to-section gradients (--surface-alt). Kept as
+     separate tokens (rather than reusing --paper) so dark mode can
+     override them independently. */
+  --surface: #FFFFFF;
+  --surface-alt: #FAFCFF;
+  --surface-translucent: rgba(255, 255, 255, 0.75);
+
+  /* Fixed-dark surface used by the footer — intentionally does NOT
+     flip with theme, since the footer is dark in both modes. */
+  --surface-inverse: #0F172A;
 
   --font-display: 'Sora', 'Segoe UI', sans-serif;
   --font-body: 'Inter', 'Segoe UI', sans-serif;
@@ -62,6 +72,7 @@ body {
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4 {

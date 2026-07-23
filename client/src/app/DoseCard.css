@@ -1,0 +1,127 @@
+.dose-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 16px 18px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.dose-card + .dose-card {
+  margin-top: 12px;
+}
+
+.dose-card--overdue {
+  border-color: rgba(217, 119, 6, 0.4);
+  background: rgba(217, 119, 6, 0.06);
+}
+
+[data-theme='dark'] .dose-card--overdue {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.32);
+}
+
+.dose-card__main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dose-card__time {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--slate);
+  width: 56px;
+  flex-shrink: 0;
+}
+
+.dose-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.dose-card__info strong {
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+.dose-card--taken .dose-card__info strong {
+  color: var(--slate-light);
+  text-decoration: line-through;
+  text-decoration-color: var(--green);
+}
+
+.dose-card__sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--slate-light);
+}
+
+.dose-card__overdue-flag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #B45309;
+}
+
+[data-theme='dark'] .dose-card__overdue-flag {
+  color: #FBBF24;
+}
+
+.dose-card__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Large touch targets — ≥56px tall, meant for older adults on mobile. */
+.dose-card__btn {
+  flex: 1;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.dose-card__btn:active {
+  transform: scale(0.97);
+}
+
+.dose-card__btn--taken {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.dose-card__btn--taken:hover {
+  background: var(--green-deep);
+}
+
+.dose-card__btn--skip {
+  background: var(--line-soft);
+  color: var(--slate);
+}
+
+.dose-card__btn--skip:hover {
+  background: var(--line);
+  color: var(--ink);
+}
+
+@media (max-width: 480px) {
+  .dose-card__main {
+    flex-wrap: wrap;
+  }
+}

@@ -1,0 +1,243 @@
+.caregiver-page__head {
+  margin-bottom: 24px;
+}
+
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  background: #FEE2E2;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #991B1B;
+  margin-bottom: 20px;
+}
+
+[data-theme='dark'] .alert-banner {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #FCA5A5;
+}
+
+.alert-banner p {
+  font-size: 0.92rem;
+  color: inherit;
+}
+
+.alert-banner strong {
+  color: inherit;
+}
+
+.alert-banner--clear {
+  background: var(--mint);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--green-deep);
+}
+
+.caregiver-page__alerts {
+  margin-bottom: 24px;
+}
+
+.caregiver-page__head h1 {
+  margin-top: 12px;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+.caregiver-page__head p {
+  margin-top: 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.caregiver-page__patients {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.patient-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 22px;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.patient-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+}
+
+.patient-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.patient-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--blue-light), var(--green));
+  color: #fff;
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.patient-card__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.patient-card__relation {
+  font-size: 0.78rem;
+  color: var(--slate-light);
+  margin-top: 2px;
+}
+
+.patient-card__badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.patient-card__badge--on-track {
+  background: var(--mint);
+  color: var(--green-deep);
+}
+
+.patient-card__badge--attention {
+  background: rgba(217, 119, 6, 0.14);
+  color: #B45309;
+}
+
+[data-theme='dark'] .patient-card__badge--attention {
+  color: #FBBF24;
+}
+
+.patient-card__adherence-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--slate);
+  margin-bottom: 8px;
+}
+
+.patient-card__adherence-row strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.patient-card__activity {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--slate-light);
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.caregiver-page__panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 24px;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.caregiver-page__panel h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-row__time {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--slate);
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.activity-row__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.activity-row__info strong {
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.activity-row__info span {
+  font-size: 0.78rem;
+  color: var(--slate-light);
+}
+
+.caregiver-page__empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--slate);
+}
+
+.caregiver-page__empty svg {
+  margin: 0 auto 10px;
+  color: var(--slate-light);
+}
+
+.caregiver-page__empty p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.caregiver-page__empty-link {
+  display: inline-block;
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--blue);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 900px) {
+  .caregiver-page__patients {
+    grid-template-columns: 1fr;
+  }
+}

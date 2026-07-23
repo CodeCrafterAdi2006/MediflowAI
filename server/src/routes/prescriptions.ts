@@ -3,6 +3,7 @@ import multer from 'multer';
 import { parsePrescriptionImage } from '../tasks/parsePrescription.js';
 import { buildSchedule, DEFAULT_MEAL_TIMES } from '../tasks/buildSchedule.js';
 import { ScheduledMedicine } from '../types/index.js';
+import { getCalendarClient } from '../lib/calendar/index.js';
 
 const router = Router();
 
@@ -59,11 +60,12 @@ router.post('/upload', upload.single('prescription'), async (req: Request, res: 
 /**
  * POST /api/prescriptions/confirm
  * Accepts confirmed/edited medicines list + optional caregiver details.
+ * Generates privacy-sanitized calendar events (.ics).
  * Returns confirmation payload.
  */
 router.post('/confirm', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { medicines, imageUrl, caregiverName, caregiverEmail } = req.body;
+    const { medicines, imageUrl, caregiverName, caregiverEmail, patientName } = req.body;
 
     if (!Array.isArray(medicines) || medicines.length === 0) {
       res.status(400).json({ error: 'No medicines provided for confirmation.' });
@@ -73,10 +75,15 @@ router.post('/confirm', async (req: Request, res: Response): Promise<void> => {
     const prescriptionId = `rx_${Date.now()}`;
     console.log(`[POST /api/prescriptions/confirm] Confirmed prescription ${prescriptionId} with ${medicines.length} medicine(s).`);
 
+    // Phase 4 Calendar Sync Service
+    const calendarClient = getCalendarClient();
+    const calendarResult = await calendarClient.createDoseEvents(patientName || 'Patient', medicines);
+
     res.status(200).json({
       success: true,
       prescriptionId,
-      syncedEventsCount: medicines.length,
+      syncedEventsCount: calendarResult.eventIds.length,
+      icsContent: calendarResult.icsContent,
       message: 'Prescription schedule confirmed and synced successfully.'
     });
   } catch (error: any) {

@@ -1,5 +1,5 @@
-import { CalendarClient, CalendarEventResult } from './interface';
-import { ScheduledMedicine } from '../../types';
+import { CalendarClient, CalendarEventResult } from './interface.js';
+import { ScheduledMedicine } from '../../types/index.js';
 
 export class MockCalendarClient implements CalendarClient {
   async createDoseEvents(
@@ -18,7 +18,7 @@ export class MockCalendarClient implements CalendarClient {
     const todayStr = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
     medicines.forEach((med, index) => {
-      med.suggestedTimes.forEach((time, timeIdx) => {
+      med.suggestedTimes.forEach((time: string, timeIdx: number) => {
         const eventId = `mediflow-evt-${Date.now()}-${index}-${timeIdx}`;
         eventIds.push(eventId);
 

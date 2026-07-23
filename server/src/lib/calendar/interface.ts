@@ -1,4 +1,4 @@
-import { ScheduledMedicine } from '../../types';
+import { ScheduledMedicine } from '../../types/index.js';
 
 export interface CalendarEventResult {
   eventIds: string[];

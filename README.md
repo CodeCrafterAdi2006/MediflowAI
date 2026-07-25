@@ -39,16 +39,16 @@ MediFlow AI uses a **Multi-Provider Fallback AI Pipeline** with automatic API ke
 
 ```mermaid
 graph TD
-    A[Patient / Caregiver Uploads Photo] -->|Multipart Form Data| B(Express.js API Layer + Rate Limiter & Image Filter)
-    B -->|Image Buffer| C{Primary AI Engine: Google Gemini 2.5 Flash}
-    C -->|Success| E[Structured JSON Extraction]
-    C -->|Rate Limit / Error| D{Fallback Engines: Groq Llama 3 / OpenRouter}
+    A["Patient / Caregiver Uploads Photo"] -->|Multipart Form Data| B("Express.js API Layer + Rate Limiter & Image Filter")
+    B -->|Image Buffer| C{"Primary AI Engine: Google Gemini 2.5 Flash"}
+    C -->|Success| E["Structured JSON Extraction"]
+    C -->|Rate Limit / Error| D{"Fallback Engines: Groq Llama 3 / OpenRouter"}
     D -->|Success| E
-    E -->|Raw Extracted Medicines| F[Scheduling Engine & Meal-Time Mapper]
-    F -->|Apply Sleep Protection Clamping| G[Final Patient Schedule]
-    G -->|Confirm & Save| H[(Supabase Database & In-Memory Store)]
-    H -->|Sanitized Reminders| I[iCalendar (.ics) Generator]
-    H -->|Real-time Overdue Feed| J[Caregiver Dashboard]
+    E -->|Raw Extracted Medicines| F["Scheduling Engine & Meal-Time Mapper"]
+    F -->|Apply Sleep Protection Clamping| G["Final Patient Schedule"]
+    G -->|Confirm & Save| H[("Supabase Database & In-Memory Store")]
+    H -->|Sanitized Reminders| I["iCalendar (.ics) Generator"]
+    H -->|Real-time Overdue Feed| J["Caregiver Dashboard"]
 ```
 
 ### 🔒 Security & Reliability Guardrails

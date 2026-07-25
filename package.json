@@ -1,0 +1,7 @@
+{
+  "name": "mediflow-ai",
+  "private": true,
+  "scripts": {
+    "build": "cd client && npm install && npm run build"
+  }
+}

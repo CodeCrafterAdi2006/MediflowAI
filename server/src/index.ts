@@ -13,13 +13,15 @@ const ALLOWED_ORIGINS = [
   'http://localhost:5173',    // Vite dev server
   'http://localhost:4173',    // Vite preview
   'https://mediflow.ai',      // Production domain
+  'https://mediflow-ai-kappa.vercel.app', // Vercel Live Demo
 ];
 
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
     // Allow server-to-server requests (no Origin header) and known origins
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    const cleanOrigin = origin ? origin.replace(/\/$/, '') : origin;
+    if (!cleanOrigin || ALLOWED_ORIGINS.includes(cleanOrigin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin '${origin}' not allowed.`));

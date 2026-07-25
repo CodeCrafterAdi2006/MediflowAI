@@ -9,6 +9,7 @@
   [![Express.js](https://img.shields.io/badge/Express.js-5.0-000000?logo=express&logoColor=white)](https://expressjs.com/)
   [![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
   [![Gemini AI](https://img.shields.io/badge/Powered%20by-Google%20Gemini%202.5-8E75B2?logo=google&logoColor=white)](https://ai.google.dev/)
+  [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-000000?logo=vercel&logoColor=white)](https://mediflow-ai-kappa.vercel.app/)
 </div>
 
 ---
@@ -158,6 +159,7 @@ Want to test the full prototype in 60 seconds? Here is how to navigate the live 
 
 ## 🔗 Links & Resources
 
+- **Live Demo (Vercel)**: [https://mediflow-ai-kappa.vercel.app/](https://mediflow-ai-kappa.vercel.app/)
 - **GitHub Repository**: [https://github.com/CodeCrafterAdi2006/MediflowAI](https://github.com/CodeCrafterAdi2006/MediflowAI)
 - **Engineering Specification**: See `specifications/Engineering.md` for full database schemas, RLS policies, and architectural RFCs.
 - **Security & Audit Report**: See `specifications/vulnerabilities.md` for our comprehensive static analysis security audit and remediation roadmap.

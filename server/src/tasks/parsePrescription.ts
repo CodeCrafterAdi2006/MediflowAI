@@ -3,9 +3,12 @@ import { queryGroq, getGroqApiKeys } from '../lib/groq.js';
 import { queryOpenRouter, getOpenRouterApiKeys } from '../lib/openrouter.js';
 import { ParsedMedicine } from '../types/index.js';
 
-const SYSTEM_PROMPT = `You are a medical prescription parser and safety validator.
-First, evaluate if the image is a valid medical prescription, doctor note, or medication container label.
-If the image is NOT a prescription or medication document (e.g. photo of an object, room, animal, food, landscape), return:
+const SYSTEM_PROMPT = `You are an expert clinical pharmacist and AI OCR parser.
+Your task is to read and extract medication schedules from images of medical prescriptions, doctor notes, pill bottles, pharmacy labels, or hospital discharge summaries.
+
+CRITICAL INSTRUCTION ON IMAGE VALIDATION:
+- If the image contains ANY medical prescription text, doctor handwriting, medication names, dosage instructions, or pill bottle labels (EVEN IF the paper is sitting on a desk, table, or photographed with a pen, hand, or room background in frame), YOU MUST TREAT IT AS A VALID PRESCRIPTION and extract all medications!
+- ONLY if the image has absolutely ZERO medical or prescription content (e.g., a photo of a dog, a selfie, a car, or a grocery store receipt with no medicines), then return:
 {"isPrescription": false, "rawOcrText": "", "medicines": []}
 
 If it IS a valid prescription/medication image, extract all medications into a JSON object matching this exact structure:
@@ -74,12 +77,14 @@ export async function parsePrescriptionImage(
         const jsonStr = cleanJsonResponse(rawText);
         const parsed = JSON.parse(jsonStr);
 
-        if (parsed && Array.isArray(parsed.medicines)) {
+        if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
           console.log(`[parsePrescription] ✅ Gemini parsed ${parsed.medicines.length} medicine(s).`);
           return {
             rawOcrText: parsed.rawOcrText || '',
             medicines: parsed.medicines
           };
+        } else {
+          console.warn(`[parsePrescription] ⚠️ Gemini Key #${i} returned 0 medicines. Trying next provider/key...`);
         }
       } catch (err: any) {
         console.warn(`[parsePrescription] ⚠️ Gemini Key #${i} failed: ${err.message || err}`);
@@ -99,12 +104,14 @@ export async function parsePrescriptionImage(
       const jsonStr = cleanJsonResponse(responseText);
       const parsed = JSON.parse(jsonStr);
 
-      if (parsed && Array.isArray(parsed.medicines)) {
+      if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
         console.log(`[parsePrescription] ✅ Groq parsed ${parsed.medicines.length} medicine(s).`);
         return {
           rawOcrText: parsed.rawOcrText || '',
           medicines: parsed.medicines
         };
+      } else {
+        console.warn('[parsePrescription] ⚠️ Groq returned 0 medicines. Trying OpenRouter...');
       }
     }
   } catch (err: any) {
@@ -121,12 +128,14 @@ export async function parsePrescriptionImage(
       const jsonStr = cleanJsonResponse(responseText);
       const parsed = JSON.parse(jsonStr);
 
-      if (parsed && Array.isArray(parsed.medicines)) {
+      if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
         console.log(`[parsePrescription] ✅ OpenRouter parsed ${parsed.medicines.length} medicine(s).`);
         return {
           rawOcrText: parsed.rawOcrText || '',
           medicines: parsed.medicines
         };
+      } else {
+        console.warn('[parsePrescription] ⚠️ OpenRouter returned 0 medicines.');
       }
     }
   } catch (err: any) {

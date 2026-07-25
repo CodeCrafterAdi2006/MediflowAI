@@ -14,6 +14,7 @@ export default function UploadPage() {
   const [dragActive, setDragActive] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [statusMsg, setStatusMsg] = useState('')
+  const [errorMsg, setErrorMsg] = useState('')
   const [fallbackWarning, setFallbackWarning] = useState(false)
   const inputRef = useRef(null)
   const navigate = useNavigate()
@@ -24,6 +25,7 @@ export default function UploadPage() {
     setFileName(f.name)
     setFile(f)
     setFallbackWarning(false)
+    setErrorMsg('')
     const reader = new FileReader()
     reader.onload = (e) => setPreview(e.target.result)
     reader.readAsDataURL(f)
@@ -61,24 +63,24 @@ export default function UploadPage() {
       const result = await uploadPrescription(file, mealTimes)
 
       if (!result.medicines || result.medicines.length === 0) {
-        // AI returned nothing parseable — fall back to demo data
-        console.warn('[UploadPage] AI returned empty medicines — using demo data fallback.')
-        setMedicines(SAMPLE_EXTRACTION)
-        setFallbackWarning(true)
-      } else {
-        setStatusMsg('Building your schedule...')
-        await new Promise((r) => setTimeout(r, 300))
-        setMedicines(result.medicines)
+        setErrorMsg(result.error || 'No valid prescription or medication label detected in this image. Please upload a clear photo of a medical prescription.')
+        setAnalyzing(false)
+        setStatusMsg('')
+        return
       }
-    } catch (err) {
-      console.warn('[UploadPage] Upload failed — falling back to demo data.', err.message)
-      setMedicines(SAMPLE_EXTRACTION)
-      setFallbackWarning(true)
-    }
 
-    setAnalyzing(false)
-    setStatusMsg('')
-    navigate('/app/review')
+      setStatusMsg('Building your schedule...')
+      await new Promise((r) => setTimeout(r, 300))
+      setMedicines(result.medicines)
+      setAnalyzing(false)
+      setStatusMsg('')
+      navigate('/app/review')
+    } catch (err) {
+      console.warn('[UploadPage] Upload error:', err.message)
+      setErrorMsg(err.message || 'Failed to process image. Please upload a clear prescription photo.')
+      setAnalyzing(false)
+      setStatusMsg('')
+    }
   }
 
   return (
@@ -88,6 +90,22 @@ export default function UploadPage() {
         <h1>Upload a prescription</h1>
         <p>Take a clear photo of the handwritten prescription, or upload one from your device.</p>
       </div>
+
+      {errorMsg && (
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', color: '#f87171', fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
+            <AlertTriangle size={18} style={{ color: '#ef4444' }} />
+            <span>Non-Prescription / Unreadable Image</span>
+          </div>
+          <p style={{ margin: 0, color: '#fca5a5' }}>{errorMsg}</p>
+          <button
+            onClick={() => { setMedicines(SAMPLE_EXTRACTION); navigate('/app/review'); }}
+            style={{ alignSelf: 'flex-start', background: 'transparent', border: 'none', color: '#60a5fa', textDecoration: 'underline', cursor: 'pointer', fontSize: '13px', padding: 0, marginTop: '4px' }}
+          >
+            Or click here to load sample demo prescription data →
+          </button>
+        </div>
+      )}
 
       {!preview ? (
         <div

@@ -50,11 +50,21 @@ router.post('/upload', upload.single('prescription'), async (req: Request, res: 
     // Step 1: Run Multimodal AI OCR Parser
     const { rawOcrText, medicines } = await parsePrescriptionImage(req.file.buffer, req.file.mimetype);
 
+    if (!medicines || medicines.length === 0) {
+      res.status(400).json({
+        error: 'No valid prescription or medication label detected in this image. Please upload a clear photo of a medical prescription.',
+        isPrescription: false,
+        medicines: []
+      });
+      return;
+    }
+
     // Step 2: Run Scheduling Engine with Sleep Protection Clamping
     const scheduledMedicines: ScheduledMedicine[] = buildSchedule(medicines, userMealTimes);
 
     res.status(200).json({
       success: true,
+      isPrescription: true,
       medicines: scheduledMedicines
     });
   } catch (error: any) {

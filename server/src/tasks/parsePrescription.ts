@@ -3,10 +3,15 @@ import { queryGroq, getGroqApiKeys } from '../lib/groq.js';
 import { queryOpenRouter, getOpenRouterApiKeys } from '../lib/openrouter.js';
 import { ParsedMedicine } from '../types/index.js';
 
-const SYSTEM_PROMPT = `You are a medical prescription parser. Extract all medications from this prescription into a clean, structured JSON object.
-Do not diagnose, alter dosages, or provide medical advice. Output ONLY valid JSON matching this exact structure:
+const SYSTEM_PROMPT = `You are a medical prescription parser and safety validator.
+First, evaluate if the image is a valid medical prescription, doctor note, or medication container label.
+If the image is NOT a prescription or medication document (e.g. photo of an object, room, animal, food, landscape), return:
+{"isPrescription": false, "rawOcrText": "", "medicines": []}
+
+If it IS a valid prescription/medication image, extract all medications into a JSON object matching this exact structure:
 
 {
+  "isPrescription": true,
   "rawOcrText": "full transcript of readable text from prescription",
   "medicines": [
     {
@@ -15,12 +20,17 @@ Do not diagnose, alter dosages, or provide medical advice. Output ONLY valid JSO
       "frequency": "Frequency instructions e.g. Three times daily after food, twice daily",
       "durationDays": 7,
       "instructions": "Special instructions e.g. Take with warm water, Finish full course",
-      "plainExplanation": "One simple, clear sentence for a patient explaining what this medicine is used for."
+      "plainExplanation": "One simple, clear sentence for a patient explaining what this medicine is used for.",
+      "isHighRisk": false,
+      "safetyWarning": null
     }
   ]
 }
 
-If no medications can be parsed or the image is unreadable, return {"rawOcrText": "", "medicines": []}.`;
+HIGH-ALERT MEDICATION SAFETY RULE:
+Identify if any medication is a High-Alert or Narrow-Therapeutic-Index drug (e.g. Warfarin/Acenocoumarol, Insulin, Digoxin, Methotrexate, Lithium, Phenytoin, Opioids/Tramadol, Immunosuppressants like Tacrolimus, Oral Anticoagulants like Eliquis/Xarelto, Potassium Chloride).
+If so, set "isHighRisk": true and provide a "safetyWarning" string like "⚠️ High-Alert Medication: Take exact dosage as prescribed by your doctor. Do not double doses."
+For standard low-risk medications, set "isHighRisk": false and "safetyWarning": null.`;
 
 /**
  * Clean Markdown backticks from AI response string if present

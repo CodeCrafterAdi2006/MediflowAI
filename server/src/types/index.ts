@@ -18,6 +18,8 @@ export interface ParsedMedicine {
   durationDays: number;     // e.g. 7
   instructions: string | null; // e.g. "Finish full course"
   plainExplanation: string; // e.g. "An antibiotic to treat bacterial infections."
+  isHighRisk?: boolean;     // e.g. true for high-alert / narrow-therapeutic-index drugs
+  safetyWarning?: string;   // e.g. "⚠️ High-Alert Drug: Take exact dosage as prescribed."
 }
 
 export interface ScheduledMedicine extends ParsedMedicine {

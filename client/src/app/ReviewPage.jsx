@@ -224,6 +224,15 @@ export default function ReviewPage() {
                 </div>
               )}
 
+              {(row.isHighRisk || row.safetyWarning) && (
+                <div className="review-card__warning review-card__warning--high-alert" style={{ background: 'rgba(239, 68, 68, 0.12)', borderLeft: '3px solid #ef4444', color: '#f87171', padding: '10px 14px', borderRadius: '6px', marginTop: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
+                  <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.4' }}>
+                    <strong>High-Alert Medication Caution:</strong> {row.safetyWarning || 'Narrow therapeutic index drug. Take exact dosage as prescribed by doctor.'}
+                  </p>
+                </div>
+              )}
+
               {hasSleepWarning && (
                 <div className="review-card__warning">
                   <AlertTriangle size={15} />

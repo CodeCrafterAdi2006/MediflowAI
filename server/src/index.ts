@@ -58,7 +58,11 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   }
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`[MediFlow Server] Listening on http://localhost:${PORT}`);
-});
+// Start Server (only when not running as a Vercel serverless function)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[MediFlow Server] Listening on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

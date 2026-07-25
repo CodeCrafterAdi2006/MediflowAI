@@ -8,7 +8,8 @@
  * defaulting to localhost:5000 for development.
  */
 
-const API_BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000').replace(/\/$/, '')
+const defaultBase = import.meta.env.PROD ? '' : 'http://localhost:5000'
+const API_BASE = (import.meta.env.VITE_API_URL ?? defaultBase).replace(/\/$/, '')
 
 async function handleResponse(res) {
   const data = await res.json().catch(() => ({}))

@@ -75,6 +75,8 @@ router.get('/today', (req: Request, res: Response): void => {
   });
 });
 
+const VALID_STATUSES = ['taken', 'missed', 'skipped', 'pending'] as const;
+
 /**
  * POST /api/schedule/log-dose
  * Updates a dose status ('taken' | 'missed' | 'skipped')
@@ -84,6 +86,13 @@ router.post('/log-dose', (req: Request, res: Response): void => {
 
   if (!doseId || !status) {
     res.status(400).json({ error: 'doseId and status are required.' });
+    return;
+  }
+
+  if (!VALID_STATUSES.includes(status)) {
+    res.status(400).json({
+      error: `Invalid status '${status}'. Allowed values: ${VALID_STATUSES.join(', ')}.`
+    });
     return;
   }
 

@@ -7,10 +7,17 @@ import { getCalendarClient } from '../lib/calendar/index.js';
 
 const router = Router();
 
-// In-memory file upload storage (max 10MB file size limit)
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`File type '${file.mimetype}' is not allowed. Only images are accepted.`));
+    }
+  }
 });
 
 /**
@@ -48,12 +55,11 @@ router.post('/upload', upload.single('prescription'), async (req: Request, res: 
 
     res.status(200).json({
       success: true,
-      rawOcrText,
       medicines: scheduledMedicines
     });
   } catch (error: any) {
     console.error('[upload] Error processing prescription:', error);
-    res.status(500).json({ error: 'Failed to process prescription image.', details: error.message });
+    res.status(500).json({ error: 'Failed to process prescription image.' });
   }
 });
 
@@ -88,7 +94,7 @@ router.post('/confirm', async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: any) {
     console.error('[confirm] Error confirming prescription:', error);
-    res.status(500).json({ error: 'Failed to confirm prescription schedule.', details: error.message });
+    res.status(500).json({ error: 'Failed to confirm prescription schedule.' });
   }
 });
 

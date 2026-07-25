@@ -63,7 +63,7 @@
 
 ### 6. Supabase Database Integration (`server/src/lib/supabase.ts` & `client/src/lib/supabaseClient.ts`)
 - **Status**: Verified & Live-Tested (`npx tsx src/test-supabase.ts`).
-- **Details**: Connected to Supabase Cloud project (`https://yhmajxdekidakmihzlsa.supabase.co`). Verified table existence (`profiles`) and RLS policy compatibility.
+- **Details**: Connected to Supabase Cloud project (URL configured in `server/.env`). Verified table existence (`profiles`) and RLS policy compatibility.
 
 ### 7. Frontend Landing Page & Styling (`client/src/`)
 - **Status**: Merged & Building Cleanly (`npm run build` passed).

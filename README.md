@@ -165,5 +165,5 @@ Want to test the full prototype in 60 seconds? Here is how to navigate the live 
 ---
 
 <div align="center">
-  <p>Built with ❤️ by Team CodeCrafter for the 2026 AI Hackathon</p>
+  <p>Built with ❤️ by Team 404_Not_Found for the 2026 AI Hackathon</p>
 </div>

@@ -21,7 +21,13 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow server-to-server requests (no Origin header) and known origins
     const cleanOrigin = origin ? origin.replace(/\/$/, '') : origin;
-    if (!cleanOrigin || ALLOWED_ORIGINS.includes(cleanOrigin)) {
+    if (
+      !cleanOrigin ||
+      ALLOWED_ORIGINS.includes(cleanOrigin) ||
+      cleanOrigin.endsWith('.vercel.app') ||
+      cleanOrigin.endsWith('.onrender.com') ||
+      cleanOrigin.includes('localhost')
+    ) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin '${origin}' not allowed.`));

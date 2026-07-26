@@ -15,21 +15,36 @@ export function getOpenRouterApiKeys(): string[] {
 }
 
 /**
- * Sends a completion query to OpenRouter API (defaults to meta-llama/llama-3.3-70b-instruct)
+ * Sends a completion query to OpenRouter API (defaults to google/gemini-2.5-flash for images, meta-llama/llama-3.3-70b-instruct for text)
  */
 export async function queryOpenRouter(
   prompt: string,
   keyIndex = 0,
-  model = 'meta-llama/llama-3.3-70b-instruct'
+  model?: string,
+  imageBuffer?: Buffer,
+  mimeType = 'image/jpeg'
 ): Promise<string> {
   const keys = getOpenRouterApiKeys();
   if (keys.length === 0) {
     throw new Error('No OpenRouter API keys configured in server/.env');
   }
 
+  const selectedModel = model || (imageBuffer ? 'google/gemini-2.5-flash' : 'meta-llama/llama-3.3-70b-instruct');
   const safeIndex = keyIndex % keys.length;
   const apiKey = keys[safeIndex];
-  console.log(`[OpenRouter SDK] Active Key Index: #${safeIndex} (Model: ${model})`);
+  console.log(`[OpenRouter SDK] Active Key Index: #${safeIndex} (Model: ${selectedModel}, Multimodal: ${!!imageBuffer})`);
+
+  const messageContent: any = imageBuffer
+    ? [
+        { type: 'text', text: prompt },
+        {
+          type: 'image_url',
+          image_url: {
+            url: `data:${mimeType};base64,${imageBuffer.toString('base64')}`,
+          },
+        },
+      ]
+    : prompt;
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
@@ -40,8 +55,8 @@ export async function queryOpenRouter(
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model,
-      messages: [{ role: 'user', content: prompt }],
+      model: selectedModel,
+      messages: [{ role: 'user', content: messageContent }],
       temperature: 0.2
     })
   });

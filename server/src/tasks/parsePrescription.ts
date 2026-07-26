@@ -125,9 +125,9 @@ export async function parsePrescriptionImage(
   try {
     const groqKeys = getGroqApiKeys();
     if (groqKeys.length > 0) {
-      console.log('[parsePrescription] 🔄 Falling back to Groq AI...');
-      const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nRespond ONLY with a JSON object. Do not include introductory conversational text.`;
-      const responseText = await queryGroq(fallbackPrompt);
+      console.log('[parsePrescription] 🔄 Falling back to Groq AI (Multimodal Vision)...');
+      const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nAnalyze the attached prescription image. Respond ONLY with a JSON object. Do not include introductory conversational text.`;
+      const responseText = await queryGroq(fallbackPrompt, 0, undefined, imageBuffer, mimeType);
       const jsonStr = cleanJsonResponse(responseText);
       const parsed = JSON.parse(jsonStr);
 
@@ -153,9 +153,9 @@ export async function parsePrescriptionImage(
   try {
     const openRouterKeys = getOpenRouterApiKeys();
     if (openRouterKeys.length > 0) {
-      console.log('[parsePrescription] 🔄 Falling back to OpenRouter AI...');
-      const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nRespond ONLY with a JSON object. Do not include introductory conversational text.`;
-      const responseText = await queryOpenRouter(fallbackPrompt);
+      console.log('[parsePrescription] 🔄 Falling back to OpenRouter AI (Multimodal Vision)...');
+      const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nAnalyze the attached prescription image. Respond ONLY with a JSON object. Do not include introductory conversational text.`;
+      const responseText = await queryOpenRouter(fallbackPrompt, 0, undefined, imageBuffer, mimeType);
       const jsonStr = cleanJsonResponse(responseText);
       const parsed = JSON.parse(jsonStr);
 

@@ -3,7 +3,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export function getGroqApiKeys(): string[] {
-  const keysStr = process.env.GROQ_API_KEYS || process.env.GROQ_API_KEY || '';
+  const keysStr =
+    process.env.GROQ_API_KEYS ||
+    process.env.GROQ_API_KEY ||
+    process.env.GROQ_API_KEY_1 ||
+    '';
   return keysStr
     .split(',')
     .map((k) => k.trim())

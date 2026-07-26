@@ -7,7 +7,11 @@ dotenv.config();
  * Helper to parse comma-separated API keys from environment
  */
 export function getGeminiApiKeys(): string[] {
-  const keysStr = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
+  const keysStr =
+    process.env.GEMINI_API_KEYS ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GEMINI_API_KEY_1 ||
+    '';
   const keys = keysStr
     .split(',')
     .map((k) => k.trim())

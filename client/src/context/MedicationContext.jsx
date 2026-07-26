@@ -68,12 +68,19 @@ export function isSleepWarning(time) {
   return mins >= 22 * 60 || mins < 5 * 60
 }
 
-/** Builds today's dose log from a medicine list. All doses are initialized
- * with status "upcoming" so the user can explicitly log them as taken or missed. */
+/** Builds today's dose log from a medicine list.
+ * Only dose times from the upload moment onwards (with a 30-min grace window)
+ * are scheduled for today, so a prescription uploaded at 9 PM doesn't generate
+ * false "missed" alerts for morning doses that passed before the prescription existed. */
 function buildDoseLog(medicines) {
+  const now = realNowMinutes()
   const log = []
   medicines.forEach((med) => {
     med.times.forEach((time) => {
+      const doseMins = timeToMinutes(time)
+      // Skip dose times earlier than 30 mins ago when generating today's schedule
+      if (doseMins < now - 30) return
+
       log.push({
         id: `${med.id}-${time}`,
         medId: med.id,
@@ -86,6 +93,25 @@ function buildDoseLog(medicines) {
       })
     })
   })
+
+  // If all doses for today had already passed before upload, include the first dose time
+  // so today's schedule is ready for the user without being empty
+  if (log.length === 0) {
+    medicines.forEach((med) => {
+      const firstTime = med.times[0] || '08:00'
+      log.push({
+        id: `${med.id}-${firstTime}`,
+        medId: med.id,
+        name: med.name,
+        dosage: med.dosage,
+        foodTiming: med.foodTiming,
+        time: firstTime,
+        status: 'upcoming',
+        snoozeUntil: null,
+      })
+    })
+  }
+
   return log.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time))
 }
 

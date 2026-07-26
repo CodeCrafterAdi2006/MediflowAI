@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { getOpenAIApiKeys, queryOpenAI } from './lib/openai.js';
 import { getGeminiApiKeys, getGeminiModel } from './lib/gemini.js';
 import { getGroqApiKeys, queryGroq } from './lib/groq.js';
 import { getOpenRouterApiKeys, queryOpenRouter } from './lib/openrouter.js';
@@ -11,6 +12,27 @@ async function testAllKeys() {
   console.log('\n======================================================');
   console.log('🔍 MEDIFLOW AI — API KEY STATUS DIAGNOSTIC REPORT');
   console.log('======================================================\n');
+
+  // 1. Test OpenAI Keys
+  console.log('--- 1. Testing OpenAI API Keys (Primary Provider) ---');
+  try {
+    const openAiKeys = getOpenAIApiKeys();
+    if (openAiKeys.length === 0) {
+      console.log('  ⚠️ No OpenAI API keys configured in environment.');
+    } else {
+      console.log(`Found ${openAiKeys.length} OpenAI key(s).`);
+      for (let i = 0; i < openAiKeys.length; i++) {
+        try {
+          const res = await queryOpenAI('Hi! Respond with "OK" if working.', i);
+          console.log(`  ✅ OpenAI Key #${i} (gpt-4o-mini): WORKING! Response: "${res.substring(0, 30)}"`);
+        } catch (err: any) {
+          console.error(`  ❌ OpenAI Key #${i}: ${err.message || err}`);
+        }
+      }
+    }
+  } catch (err: any) {
+    console.error(`  ❌ OpenAI Error: ${err.message}`);
+  }
 
   // 1. Test Gemini Keys
   console.log('--- 1. Testing Gemini API Keys ---');

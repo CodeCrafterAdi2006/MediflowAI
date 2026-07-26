@@ -1,3 +1,4 @@
+import { queryOpenAI, getOpenAIApiKeys } from '../lib/openai.js';
 import { getGeminiModel, getGeminiApiKeys } from '../lib/gemini.js';
 import { queryGroq, getGroqApiKeys } from '../lib/groq.js';
 import { queryOpenRouter, getOpenRouterApiKeys } from '../lib/openrouter.js';
@@ -33,20 +34,14 @@ If it IS a valid prescription/medication image, extract all medications into a J
 HIGH-ALERT MEDICATION SAFETY RULE:
 Identify if any medication is a High-Alert or Narrow-Therapeutic-Index drug (e.g. Warfarin/Acenocoumarol, Insulin, Digoxin, Methotrexate, Lithium, Phenytoin, Opioids/Tramadol, Immunosuppressants like Tacrolimus, Oral Anticoagulants like Eliquis/Xarelto, Potassium Chloride).
 If so, set "isHighRisk": true and provide a "safetyWarning" string like "⚠️ High-Alert Medication: Take exact dosage as prescribed by your doctor. Do not double doses."
-For standard low-risk medications, set "isHighRisk": false and "safetyWarning": null.`;
+For standard low-risk medications, set "isHighRisk": false and "safetyWarning": null.
 
-/**
- * Clean Markdown backticks and extract JSON object from AI response string
- */
+Return ONLY valid JSON. Do not wrap in markdown quotes if possible, or use standard markdown JSON code blocks.`;
+
 function cleanJsonResponse(text: string): string {
   let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
-  }
-  cleaned = cleaned.trim();
-  // If there is conversational text around the JSON, extract the outer {...} block
+  cleaned = cleaned.replace(/^```json\s*/i, '').replace(/\s*```$/, '');
+  cleaned = cleaned.replace(/^```\s*/i, '').replace(/\s*```$/, '');
   if (!cleaned.startsWith('{') || !cleaned.endsWith('}')) {
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
@@ -58,7 +53,7 @@ function cleanJsonResponse(text: string): string {
 
 /**
  * Parse a prescription image buffer into structured ParsedMedicine objects.
- * Implements key rotation for Gemini and fallback to Groq/OpenRouter.
+ * Implements multi-provider fallback: Primary OpenAI -> Gemini -> OpenRouter -> Groq.
  */
 export async function parsePrescriptionImage(
   imageBuffer: Buffer,
@@ -66,7 +61,43 @@ export async function parsePrescriptionImage(
 ): Promise<{ rawOcrText: string; medicines: ParsedMedicine[]; errorReason?: string }> {
   const errors: string[] = [];
 
-  // 1. Attempt Gemini with Key Rotation & Model Fallback
+  // 1. Primary AI Provider: OpenAI (gpt-4o-mini Multimodal Vision OCR)
+  try {
+    const openAiKeys = getOpenAIApiKeys();
+    if (openAiKeys.length > 0) {
+      for (let i = 0; i < openAiKeys.length; i++) {
+        try {
+          console.log(`[parsePrescription] 🚀 Primary Attempt: OpenAI (gpt-4o-mini Multimodal Vision, Key #${i})...`);
+          const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nAnalyze the attached prescription image. Respond ONLY with a JSON object. Do not include introductory conversational text.`;
+          const responseText = await queryOpenAI(fallbackPrompt, i, 'gpt-4o-mini', imageBuffer, mimeType);
+          const jsonStr = cleanJsonResponse(responseText);
+          const parsed = JSON.parse(jsonStr);
+
+          if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
+            console.log(`[parsePrescription] ✅ OpenAI (gpt-4o-mini) parsed ${parsed.medicines.length} medicine(s).`);
+            return {
+              rawOcrText: parsed.rawOcrText || '',
+              medicines: parsed.medicines
+            };
+          } else {
+            const warnMsg = `OpenAI (Key #${i}) returned 0 medicines (isPrescription: ${parsed?.isPrescription})`;
+            console.warn(`[parsePrescription] ⚠️ ${warnMsg}`);
+            errors.push(warnMsg);
+          }
+        } catch (err: any) {
+          const errMsg = `OpenAI (Key #${i}) failed: ${err.message || err}`;
+          console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
+          errors.push(errMsg);
+        }
+      }
+    }
+  } catch (err: any) {
+    const errMsg = `OpenAI keys unconfigured: ${err.message || err}`;
+    console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
+    errors.push(errMsg);
+  }
+
+  // 2. Fallback Provider #1: Google Gemini with Key Rotation & Model Fallback
   try {
     const geminiKeys = getGeminiApiKeys();
     for (let i = 0; i < geminiKeys.length; i++) {
@@ -81,7 +112,7 @@ export async function parsePrescriptionImage(
       ];
       for (const modelName of modelsToTry) {
         try {
-          console.log(`[parsePrescription] Attempting Gemini (${modelName}, Key #${i})...`);
+          console.log(`[parsePrescription] 🔄 Fallback Attempt: Gemini (${modelName}, Key #${i})...`);
           const model = getGeminiModel(modelName, i);
           
           const imagePart = {
@@ -121,11 +152,11 @@ export async function parsePrescriptionImage(
     errors.push(errMsg);
   }
 
-  // 2. Fallback to OpenRouter (Multimodal Vision OCR via Gemini 2.5 Flash) if keys exist
+  // 3. Fallback Provider #2: OpenRouter (Multimodal Vision OCR via Gemini 2.5 Flash)
   try {
     const openRouterKeys = getOpenRouterApiKeys();
     if (openRouterKeys.length > 0) {
-      console.log('[parsePrescription] 🔄 Falling back to OpenRouter AI (Multimodal Vision OCR)...');
+      console.log('[parsePrescription] 🔄 Fallback Attempt: OpenRouter AI (Multimodal Vision OCR)...');
       const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nAnalyze the attached prescription image. Respond ONLY with a JSON object. Do not include introductory conversational text.`;
       const responseText = await queryOpenRouter(fallbackPrompt, 0, undefined, imageBuffer, mimeType);
       const jsonStr = cleanJsonResponse(responseText);
@@ -149,11 +180,11 @@ export async function parsePrescriptionImage(
     errors.push(errMsg);
   }
 
-  // 3. Fallback to Groq (Text-Only Reasoning via Llama 3.3 70B Versatile) if keys exist
+  // 4. Fallback Provider #3: Groq (Text-Only Reasoning via Llama 3.3 70B Versatile)
   try {
     const groqKeys = getGroqApiKeys();
     if (groqKeys.length > 0) {
-      console.log('[parsePrescription] 🔄 Falling back to Groq AI (Text Reasoning)...');
+      console.log('[parsePrescription] 🔄 Fallback Attempt: Groq AI (Text Reasoning)...');
       const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nRespond ONLY with a JSON object. Do not include introductory conversational text.`;
       const responseText = await queryGroq(fallbackPrompt);
       const jsonStr = cleanJsonResponse(responseText);
@@ -177,7 +208,7 @@ export async function parsePrescriptionImage(
     errors.push(errMsg);
   }
 
-  // 4. Safe fallback if all AI parsing attempts fail
+  // 5. Safe fallback if all AI parsing attempts fail
   const finalErrorReason = errors.length > 0 ? `AI parsing failed: ${errors.join(' | ')}` : 'AI determined image is not a prescription or found no medicines.';
   console.error(`[parsePrescription] ❌ All AI parsing providers failed. Reason: ${finalErrorReason}`);
   return {

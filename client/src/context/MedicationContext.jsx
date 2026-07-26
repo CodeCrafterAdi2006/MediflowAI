@@ -68,22 +68,12 @@ export function isSleepWarning(time) {
   return mins >= 22 * 60 || mins < 5 * 60
 }
 
-/** Builds today's dose log from a medicine list. Doses whose scheduled
- * time has already passed are seeded as mostly "taken" (with an
- * occasional "missed", for a realistic-looking demo); doses still ahead
- * are "upcoming". */
+/** Builds today's dose log from a medicine list. All doses are initialized
+ * with status "upcoming" so the user can explicitly log them as taken or missed. */
 function buildDoseLog(medicines) {
-  const now = realNowMinutes()
   const log = []
   medicines.forEach((med) => {
-    med.times.forEach((time, i) => {
-      const isPast = timeToMinutes(time) < now
-      let status = 'upcoming'
-      if (isPast) {
-        // Deterministic-ish "mostly taken" pattern rather than pure random,
-        // so the demo data doesn't reshuffle awkwardly on every edit.
-        status = (med.id.charCodeAt(1) + i) % 5 === 0 ? 'missed' : 'taken'
-      }
+    med.times.forEach((time) => {
       log.push({
         id: `${med.id}-${time}`,
         medId: med.id,
@@ -91,7 +81,7 @@ function buildDoseLog(medicines) {
         dosage: med.dosage,
         foodTiming: med.foodTiming,
         time,
-        status,
+        status: 'upcoming',
         snoozeUntil: null, // minutes-of-day the dose is snoozed until, if any
       })
     })

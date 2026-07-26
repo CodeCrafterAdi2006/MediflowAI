@@ -65,7 +65,7 @@
 >
 > *(Drop image into dropzone)*
 >
-> **As we upload this image, our backend activates our Multimodal OCR Pipeline. Under the hood, we utilize Google's Gemini 2.0 Flash Vision model. To guarantee 99.9% enterprise uptime and bypass rate-limits, we engineered an automatic API key rotation pool, backed by an instant failover mechanism to Groq AI.**
+> **As we upload this image, our backend activates our Multimodal OCR Pipeline. Under the hood, we utilize Google's newest 2026 Frontier Gemini 3 Series and Proven Gemini 2.5 models. To guarantee 99.9% enterprise uptime and bypass rate-limits, we engineered an automatic API key rotation pool with multi-model failover, backed by Meta's Llama 3.3 on Groq AI.**
 >
 > *(Review Page loads)*
 >

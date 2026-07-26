@@ -21,7 +21,7 @@ Our live production demo is active, bulletproof, and ready for judges to test at
 - **CORS & Error Sanitization**: Hardened Express API endpoints with wildcard CORS protection for Vercel preview URLs and sanitized error stacks to prevent information leakage.
 
 ### 2. Clinical AI Safety & Guardrail Engineering
-- **Non-Prescription Image Rejection**: Engineered content-aware validation in our Gemini OCR pipeline (`server/src/tasks/parsePrescription.ts`). If a user uploads a selfie, random object, or non-medical image, the AI immediately rejects it with a user-friendly clinical error banner.
+- **Non-Prescription Image Rejection & 2026 Frontier AI Models**: Engineered content-aware validation in our OCR pipeline (`server/src/tasks/parsePrescription.ts`), leveraging Google's 2026 Frontier Gemini 3 Series (`3.5-flash`, `3.6-flash`), Proven Gemini 2.5 generation, and Meta's Llama 3.3 on Groq AI. If a user uploads a selfie, random object, or non-medical image, the AI immediately rejects it with a user-friendly clinical error banner.
 - **High-Alert Medication Detection**: Integrated intelligent screening for narrow-therapeutic-index drugs (such as anticoagulants, insulin, and immunosuppressants).
 - **UI Warning Badges**: Updated `ReviewPage.jsx` to dynamically render prominent red **⚠️ High-Alert Medication Caution** badges and banners, protecting patients from accidental overdoses.
 

@@ -5,7 +5,7 @@ async function runTest() {
   
   const keys = getGeminiApiKeys();
   const prompt = 'Explain in 1 clear sentence what an antibiotic is for a patient.';
-  const modelName = 'gemini-2.0-flash';
+  const modelName = 'gemini-3.5-flash';
 
   for (let i = 0; i < keys.length; i++) {
     try {

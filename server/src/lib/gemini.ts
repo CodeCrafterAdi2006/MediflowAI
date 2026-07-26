@@ -36,11 +36,11 @@ export function getGeminiClient(keyIndex = 0): GoogleGenerativeAI {
 }
 
 /**
- * Helper to get a GenerativeModel instance (defaults to gemini-1.5-flash)
+ * Helper to get a GenerativeModel instance (defaults to gemini-3.5-flash)
  * @param modelName - Generative model identifier
  * @param keyIndex - Key rotation index
  */
-export function getGeminiModel(modelName = 'gemini-2.0-flash', keyIndex = 0) {
+export function getGeminiModel(modelName = 'gemini-3.5-flash', keyIndex = 0) {
   const client = getGeminiClient(keyIndex);
   return client.getGenerativeModel({ model: modelName });
 }

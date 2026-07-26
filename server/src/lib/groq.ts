@@ -15,36 +15,21 @@ export function getGroqApiKeys(): string[] {
 }
 
 /**
- * Sends a completion query to the Groq API (defaults to llama-3.2-90b-vision-preview for images, llama-3.3-70b-versatile for text)
+ * Sends a completion query to the Groq API (defaults to llama-3.3-70b-versatile)
  */
 export async function queryGroq(
   prompt: string,
   keyIndex = 0,
-  model?: string,
-  imageBuffer?: Buffer,
-  mimeType = 'image/jpeg'
+  model = 'llama-3.3-70b-versatile'
 ): Promise<string> {
   const keys = getGroqApiKeys();
   if (keys.length === 0) {
     throw new Error('No Groq API keys configured in server/.env');
   }
 
-  const selectedModel = model || (imageBuffer ? 'llama-3.2-90b-vision-preview' : 'llama-3.3-70b-versatile');
   const safeIndex = keyIndex % keys.length;
   const apiKey = keys[safeIndex];
-  console.log(`[Groq SDK] Active Key Index: #${safeIndex} (Model: ${selectedModel}, Multimodal: ${!!imageBuffer})`);
-
-  const messageContent: any = imageBuffer
-    ? [
-        { type: 'text', text: prompt },
-        {
-          type: 'image_url',
-          image_url: {
-            url: `data:${mimeType};base64,${imageBuffer.toString('base64')}`,
-          },
-        },
-      ]
-    : prompt;
+  console.log(`[Groq SDK] Active Key Index: #${safeIndex} (Model: ${model})`);
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -53,8 +38,9 @@ export async function queryGroq(
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: selectedModel,
-      messages: [{ role: 'user', content: messageContent }],
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2048,
       temperature: 0.2
     })
   });

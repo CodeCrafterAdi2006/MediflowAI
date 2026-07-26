@@ -121,39 +121,11 @@ export async function parsePrescriptionImage(
     errors.push(errMsg);
   }
 
-  // 2. Fallback to Groq if keys exist
-  try {
-    const groqKeys = getGroqApiKeys();
-    if (groqKeys.length > 0) {
-      console.log('[parsePrescription] 🔄 Falling back to Groq AI (Multimodal Vision)...');
-      const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nAnalyze the attached prescription image. Respond ONLY with a JSON object. Do not include introductory conversational text.`;
-      const responseText = await queryGroq(fallbackPrompt, 0, undefined, imageBuffer, mimeType);
-      const jsonStr = cleanJsonResponse(responseText);
-      const parsed = JSON.parse(jsonStr);
-
-      if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
-        console.log(`[parsePrescription] ✅ Groq parsed ${parsed.medicines.length} medicine(s).`);
-        return {
-          rawOcrText: parsed.rawOcrText || '',
-          medicines: parsed.medicines
-        };
-      } else {
-        const warnMsg = 'Groq returned 0 medicines.';
-        console.warn(`[parsePrescription] ⚠️ ${warnMsg}`);
-        errors.push(warnMsg);
-      }
-    }
-  } catch (err: any) {
-    const errMsg = `Groq fallback failed: ${err.message || err}`;
-    console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
-    errors.push(errMsg);
-  }
-
-  // 3. Fallback to OpenRouter if keys exist
+  // 2. Fallback to OpenRouter (Multimodal Vision OCR via Gemini 2.5 Flash) if keys exist
   try {
     const openRouterKeys = getOpenRouterApiKeys();
     if (openRouterKeys.length > 0) {
-      console.log('[parsePrescription] 🔄 Falling back to OpenRouter AI (Multimodal Vision)...');
+      console.log('[parsePrescription] 🔄 Falling back to OpenRouter AI (Multimodal Vision OCR)...');
       const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nAnalyze the attached prescription image. Respond ONLY with a JSON object. Do not include introductory conversational text.`;
       const responseText = await queryOpenRouter(fallbackPrompt, 0, undefined, imageBuffer, mimeType);
       const jsonStr = cleanJsonResponse(responseText);
@@ -173,6 +145,34 @@ export async function parsePrescriptionImage(
     }
   } catch (err: any) {
     const errMsg = `OpenRouter fallback failed: ${err.message || err}`;
+    console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
+    errors.push(errMsg);
+  }
+
+  // 3. Fallback to Groq (Text-Only Reasoning via Llama 3.3 70B Versatile) if keys exist
+  try {
+    const groqKeys = getGroqApiKeys();
+    if (groqKeys.length > 0) {
+      console.log('[parsePrescription] 🔄 Falling back to Groq AI (Text Reasoning)...');
+      const fallbackPrompt = `[STRICT JSON OUTPUT REQUIRED]\n${SYSTEM_PROMPT}\n\nRespond ONLY with a JSON object. Do not include introductory conversational text.`;
+      const responseText = await queryGroq(fallbackPrompt);
+      const jsonStr = cleanJsonResponse(responseText);
+      const parsed = JSON.parse(jsonStr);
+
+      if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
+        console.log(`[parsePrescription] ✅ Groq parsed ${parsed.medicines.length} medicine(s).`);
+        return {
+          rawOcrText: parsed.rawOcrText || '',
+          medicines: parsed.medicines
+        };
+      } else {
+        const warnMsg = 'Groq returned 0 medicines.';
+        console.warn(`[parsePrescription] ⚠️ ${warnMsg}`);
+        errors.push(warnMsg);
+      }
+    }
+  } catch (err: any) {
+    const errMsg = `Groq fallback failed: ${err.message || err}`;
     console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
     errors.push(errMsg);
   }

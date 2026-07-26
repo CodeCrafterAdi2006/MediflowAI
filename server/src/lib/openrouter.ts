@@ -57,6 +57,7 @@ export async function queryOpenRouter(
     body: JSON.stringify({
       model: selectedModel,
       messages: [{ role: 'user', content: messageContent }],
+      max_tokens: 2048,
       temperature: 0.2
     })
   });

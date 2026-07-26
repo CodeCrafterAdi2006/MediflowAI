@@ -44,9 +44,11 @@ app.get('/health', (req, res) => {
 
 // Prescriptions API Routes (Phase 2.4)
 app.use('/api/prescriptions', prescriptionsRouter);
+app.use('/prescriptions', prescriptionsRouter); // Backup if Vercel strips /api prefix
 
 // Daily Schedule & Adherence Demo Routes (Phase 3)
 app.use('/api/schedule', scheduleRouter);
+app.use('/schedule', scheduleRouter); // Backup if Vercel strips /api prefix
 
 // Global Error Handler (CORS, Multer, etc.)
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

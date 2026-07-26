@@ -95,7 +95,7 @@ export default function UploadPage() {
         <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', color: '#f87171', fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
             <AlertTriangle size={18} style={{ color: '#ef4444' }} />
-            <span>Non-Prescription / Unreadable Image</span>
+            <span>{errorMsg.includes('Server AI') || errorMsg.includes('Configuration') || errorMsg.includes('Environment') || errorMsg.includes('failed') ? 'AI Server Configuration / Processing Error' : 'Non-Prescription / Unreadable Image'}</span>
           </div>
           <p style={{ margin: 0, color: '#fca5a5' }}>{errorMsg}</p>
           <button

@@ -48,11 +48,18 @@ router.post('/upload', upload.single('prescription'), async (req: Request, res: 
     }
 
     // Step 1: Run Multimodal AI OCR Parser
-    const { rawOcrText, medicines } = await parsePrescriptionImage(req.file.buffer, req.file.mimetype);
+    const parseResult = await parsePrescriptionImage(req.file.buffer, req.file.mimetype);
+    const { rawOcrText, medicines, errorReason } = parseResult;
 
     if (!medicines || medicines.length === 0) {
+      const reason = errorReason || 'No valid prescription or medication label detected in this image.';
+      console.warn(`[upload] Prescription rejection reason: ${reason}`);
+      const isConfigError = reason.includes('API Key') || reason.includes('quota') || reason.includes('failed') || reason.includes('429') || reason.includes('unconfigured') || reason.includes('Missing') || reason.includes('Invalid') || reason.includes('Error');
       res.status(400).json({
-        error: 'No valid prescription or medication label detected in this image. Please upload a clear photo of a medical prescription.',
+        error: isConfigError
+          ? `Server AI Configuration Error: ${reason}. (If running on Vercel, please check your Environment Variables!)`
+          : 'No valid prescription or medication label detected in this image. Please upload a clear photo of a medical prescription.',
+        debugReason: reason,
         isPrescription: false,
         medicines: []
       });

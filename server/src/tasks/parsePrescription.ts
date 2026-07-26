@@ -36,7 +36,7 @@ If so, set "isHighRisk": true and provide a "safetyWarning" string like "⚠️ 
 For standard low-risk medications, set "isHighRisk": false and "safetyWarning": null.`;
 
 /**
- * Clean Markdown backticks from AI response string if present
+ * Clean Markdown backticks and extract JSON object from AI response string
  */
 function cleanJsonResponse(text: string): string {
   let cleaned = text.trim();
@@ -45,7 +45,15 @@ function cleanJsonResponse(text: string): string {
   } else if (cleaned.startsWith('```')) {
     cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
   }
-  return cleaned.trim();
+  cleaned = cleaned.trim();
+  // If there is conversational text around the JSON, extract the outer {...} block
+  if (!cleaned.startsWith('{') || !cleaned.endsWith('}')) {
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return jsonMatch[0].trim();
+    }
+  }
+  return cleaned;
 }
 
 /**
@@ -55,43 +63,54 @@ function cleanJsonResponse(text: string): string {
 export async function parsePrescriptionImage(
   imageBuffer: Buffer,
   mimeType = 'image/jpeg'
-): Promise<{ rawOcrText: string; medicines: ParsedMedicine[] }> {
-  // 1. Attempt Gemini with Key Rotation
+): Promise<{ rawOcrText: string; medicines: ParsedMedicine[]; errorReason?: string }> {
+  const errors: string[] = [];
+
+  // 1. Attempt Gemini with Key Rotation & Model Fallback
   try {
     const geminiKeys = getGeminiApiKeys();
     for (let i = 0; i < geminiKeys.length; i++) {
-      try {
-        console.log(`[parsePrescription] Attempting Gemini (Key #${i})...`);
-        const model = getGeminiModel('gemini-2.0-flash', i);
-        
-        const imagePart = {
-          inlineData: {
-            data: imageBuffer.toString('base64'),
-            mimeType
-          }
-        };
-
-        const result = await model.generateContent([SYSTEM_PROMPT, imagePart]);
-        const response = await result.response;
-        const rawText = response.text();
-        const jsonStr = cleanJsonResponse(rawText);
-        const parsed = JSON.parse(jsonStr);
-
-        if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
-          console.log(`[parsePrescription] ✅ Gemini parsed ${parsed.medicines.length} medicine(s).`);
-          return {
-            rawOcrText: parsed.rawOcrText || '',
-            medicines: parsed.medicines
+      const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+      for (const modelName of modelsToTry) {
+        try {
+          console.log(`[parsePrescription] Attempting Gemini (${modelName}, Key #${i})...`);
+          const model = getGeminiModel(modelName, i);
+          
+          const imagePart = {
+            inlineData: {
+              data: imageBuffer.toString('base64'),
+              mimeType
+            }
           };
-        } else {
-          console.warn(`[parsePrescription] ⚠️ Gemini Key #${i} returned 0 medicines. Trying next provider/key...`);
+
+          const result = await model.generateContent([SYSTEM_PROMPT, imagePart]);
+          const response = await result.response;
+          const rawText = response.text();
+          const jsonStr = cleanJsonResponse(rawText);
+          const parsed = JSON.parse(jsonStr);
+
+          if (parsed && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
+            console.log(`[parsePrescription] ✅ Gemini (${modelName}) parsed ${parsed.medicines.length} medicine(s).`);
+            return {
+              rawOcrText: parsed.rawOcrText || '',
+              medicines: parsed.medicines
+            };
+          } else {
+            const warnMsg = `Gemini (${modelName}, Key #${i}) returned 0 medicines (isPrescription: ${parsed?.isPrescription})`;
+            console.warn(`[parsePrescription] ⚠️ ${warnMsg}`);
+            errors.push(warnMsg);
+          }
+        } catch (err: any) {
+          const errMsg = `Gemini (${modelName}, Key #${i}) failed: ${err.message || err}`;
+          console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
+          errors.push(errMsg);
         }
-      } catch (err: any) {
-        console.warn(`[parsePrescription] ⚠️ Gemini Key #${i} failed: ${err.message || err}`);
       }
     }
-  } catch (err) {
-    console.warn('[parsePrescription] Gemini keys not available or unconfigured.');
+  } catch (err: any) {
+    const errMsg = `Gemini keys unconfigured or invalid: ${err.message || err}`;
+    console.warn(`[parsePrescription] ${errMsg}`);
+    errors.push(errMsg);
   }
 
   // 2. Fallback to Groq if keys exist
@@ -111,11 +130,15 @@ export async function parsePrescriptionImage(
           medicines: parsed.medicines
         };
       } else {
-        console.warn('[parsePrescription] ⚠️ Groq returned 0 medicines. Trying OpenRouter...');
+        const warnMsg = 'Groq returned 0 medicines.';
+        console.warn(`[parsePrescription] ⚠️ ${warnMsg}`);
+        errors.push(warnMsg);
       }
     }
   } catch (err: any) {
-    console.warn(`[parsePrescription] ⚠️ Groq fallback failed: ${err.message || err}`);
+    const errMsg = `Groq fallback failed: ${err.message || err}`;
+    console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
+    errors.push(errMsg);
   }
 
   // 3. Fallback to OpenRouter if keys exist
@@ -135,17 +158,23 @@ export async function parsePrescriptionImage(
           medicines: parsed.medicines
         };
       } else {
-        console.warn('[parsePrescription] ⚠️ OpenRouter returned 0 medicines.');
+        const warnMsg = 'OpenRouter returned 0 medicines.';
+        console.warn(`[parsePrescription] ⚠️ ${warnMsg}`);
+        errors.push(warnMsg);
       }
     }
   } catch (err: any) {
-    console.warn(`[parsePrescription] ⚠️ OpenRouter fallback failed: ${err.message || err}`);
+    const errMsg = `OpenRouter fallback failed: ${err.message || err}`;
+    console.warn(`[parsePrescription] ⚠️ ${errMsg}`);
+    errors.push(errMsg);
   }
 
   // 4. Safe fallback if all AI parsing attempts fail
-  console.error('[parsePrescription] ❌ All AI parsing providers failed. Returning empty list for manual entry.');
+  const finalErrorReason = errors.length > 0 ? `AI parsing failed: ${errors.join(' | ')}` : 'AI determined image is not a prescription or found no medicines.';
+  console.error(`[parsePrescription] ❌ All AI parsing providers failed. Reason: ${finalErrorReason}`);
   return {
     rawOcrText: '',
-    medicines: []
+    medicines: [],
+    errorReason: finalErrorReason
   };
 }

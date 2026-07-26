@@ -71,15 +71,17 @@ export function isSleepWarning(time) {
 /** Builds today's dose log from a medicine list.
  * Only dose times from the upload moment onwards (with a 30-min grace window)
  * are scheduled for today, so a prescription uploaded at 9 PM doesn't generate
- * false "missed" alerts for morning doses that passed before the prescription existed. */
-function buildDoseLog(medicines) {
+ * false "missed" alerts for morning doses that passed before the prescription existed.
+ * When isNewDay is true (midnight rollover), all dose times are scheduled for the full 24h day. */
+function buildDoseLog(medicines, isNewDay = false) {
   const now = realNowMinutes()
   const log = []
   medicines.forEach((med) => {
     med.times.forEach((time) => {
       const doseMins = timeToMinutes(time)
-      // Skip dose times earlier than 30 mins ago when generating today's schedule
-      if (doseMins < now - 30) return
+      // On a new day rollover (midnight), include ALL dose times for the full 24h day.
+      // Otherwise, skip dose times earlier than 30 mins ago when generating today's initial schedule.
+      if (!isNewDay && doseMins < now - 30) return
 
       log.push({
         id: `${med.id}-${time}`,
@@ -209,9 +211,22 @@ export function MedicationProvider({ children }) {
       },
 
       /** Demo control: fast-forwards the simulated clock by one hour, so
-       * upcoming doses can be watched turning into caregiver alerts. */
+       * upcoming doses can be watched turning into caregiver alerts.
+       * Automatically rolls over to a fresh daily schedule when crossing midnight (12 AM). */
       advanceOneHour() {
-        setState((s) => ({ ...s, clockOffsetMinutes: s.clockOffsetMinutes + 60 }))
+        setState((s) => {
+          const nextOffset = s.clockOffsetMinutes + 60
+          const nextEffective = realNowMinutes() + nextOffset
+          if (nextEffective >= 1440) {
+            // Midnight rollover! Wrap clock to new day and generate fresh upcoming schedule for all medicines
+            return {
+              ...s,
+              clockOffsetMinutes: nextOffset - 1440,
+              doseLog: buildDoseLog(s.medicines, true),
+            }
+          }
+          return { ...s, clockOffsetMinutes: nextOffset }
+        })
       },
 
       resetClock() {

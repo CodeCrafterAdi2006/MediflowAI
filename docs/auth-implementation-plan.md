@@ -56,7 +56,7 @@ Vercel is **serverless**. Each API invocation may run in a different cold-starte
 - Token expiry is embedded in the JWT payload — no session store needed.
 
 **JWT payload will contain:** `{ sub: googleId, email, name, picture, iat, exp }`
-**JWT lifetime:** 7 days (configurable). No refresh token rotation at MVP — re-login after expiry.
+**JWT lifetime:** 30 days (configurable via `JWT_EXPIRES_IN`). No refresh token rotation at MVP — re-login after expiry.
 
 ---
 
@@ -197,7 +197,7 @@ CREATE POLICY "No public access" ON public.users
 | `GOOGLE_CLIENT_SECRET` | `GOCSPX-xxxxxxxxxxxxx` | OAuth 2.0 Client Secret from Google Cloud Console |
 | `GOOGLE_REDIRECT_URI` | `http://localhost:5000/api/auth/google/callback` | Must exactly match Authorized redirect URI in Google Cloud Console |
 | `JWT_SECRET` | `your-random-256-bit-secret-here` | Secret for signing JWTs. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
-| `JWT_EXPIRES_IN` | `7d` | JWT lifetime (jsonwebtoken duration string) |
+| `JWT_EXPIRES_IN` | `30d` | JWT lifetime (jsonwebtoken duration string) |
 | `NODE_ENV` | `development` | Controls `Secure` cookie flag (only set in production) |
 
 > **Already exist in `.env.example`:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` — stubs will be updated with proper comments.
@@ -387,7 +387,7 @@ After approval, code lands in **4 scoped commits** for clean review:
 
 Before any code is written, please confirm or decide:
 
-1. **Session lifetime:** Is **7 days** the right JWT expiry? For a hackathon demo this is generous. For a medical app, 24 hours + silent refresh may be more appropriate.
+1. **Session lifetime:** ~~7 days~~ **Decided: 30 days** (`JWT_EXPIRES_IN=30d`). Updated in `.env.example`. No further action needed on this item.
 
 2. **Existing unauth users:** After this change, anyone visiting `/app/*` will be redirected to `/login`. Is this acceptable, or should there be a "try without account" path?
 

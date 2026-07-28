@@ -1,8 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import prescriptionsRouter from './routes/prescriptions.js';
 import scheduleRouter from './routes/schedule.js';
+import authRouter from './routes/auth.js';
 
 dotenv.config();
 
@@ -36,11 +38,16 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser()); // Must be before any route that reads req.cookies
 
 // Health Check Route (Phase 1.1)
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Auth Routes (Phase 4 — Google OAuth + JWT session)
+// NOTE: no bare /auth backup — auth callback URI must be exact (see plan §11 risk #7)
+app.use('/api/auth', authRouter);
 
 // Prescriptions API Routes (Phase 2.4)
 app.use('/api/prescriptions', prescriptionsRouter);

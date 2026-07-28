@@ -19,7 +19,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { verifyToken, type AuthPayload } from '../lib/jwt.js';
 
 // ---------------------------------------------------------------------------
@@ -53,15 +53,26 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
     req.user = payload;
     next();
   } catch (err) {
-    if (err instanceof TokenExpiredError) {
+    if (err instanceof jwt.TokenExpiredError) {
       // Clear the stale cookie so the client doesn't keep sending it.
-      res.clearCookie('auth_token', { httpOnly: true, sameSite: 'lax', path: '/' });
+      // secure flag must match the flag used when the cookie was originally set.
+      res.clearCookie('auth_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      });
       res.status(401).json({ error: 'Session expired. Please log in again.' });
       return;
     }
-    if (err instanceof JsonWebTokenError) {
+    if (err instanceof jwt.JsonWebTokenError) {
       // Tampered or malformed token — clear it.
-      res.clearCookie('auth_token', { httpOnly: true, sameSite: 'lax', path: '/' });
+      res.clearCookie('auth_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      });
       res.status(401).json({ error: 'Invalid session token.' });
       return;
     }

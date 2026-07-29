@@ -45,9 +45,10 @@ const authRateLimit = rateLimit({
 router.use(authRateLimit);
 
 // ---------------------------------------------------------------------------
-// Shared cookie helpers
+// Shared helpers
 // ---------------------------------------------------------------------------
 const IS_PROD = process.env.NODE_ENV === 'production';
+const CLIENT_URL = process.env.CLIENT_URL || (IS_PROD ? '' : 'http://localhost:5173');
 
 /** Options for the long-lived auth_token JWT cookie. */
 function authCookieOptions() {
@@ -143,7 +144,7 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
   // Google may redirect here with an error parameter (e.g. access_denied).
   if (oauthError) {
     console.warn('[callback] Google OAuth error:', oauthError);
-    res.redirect('/?auth_error=' + encodeURIComponent(oauthError));
+    res.redirect(`${CLIENT_URL}/login?error=access_denied`);
     return;
   }
 
@@ -183,6 +184,10 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
       throw new Error('id_token payload is empty after verification.');
     }
 
+    if (googlePayload.email_verified !== true) {
+      throw new Error('Google account email is not verified.');
+    }
+
     const { sub: googleId, email, name, picture } = googlePayload;
 
     if (!googleId || !email || !name) {
@@ -214,11 +219,11 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
     console.log(`[callback] User logged in: ${email} (${googleId})`);
 
     // Redirect to the main app dashboard.
-    res.redirect('/app/dashboard');
+    res.redirect(`${CLIENT_URL}/app/dashboard`);
   } catch (err: any) {
     console.error('[GET /api/auth/google/callback]', err.message);
     // Redirect to login with a generic error flag rather than exposing internals.
-    res.redirect('/login?error=auth_failed');
+    res.redirect(`${CLIENT_URL}/login?error=auth_failed`);
   }
 });
 

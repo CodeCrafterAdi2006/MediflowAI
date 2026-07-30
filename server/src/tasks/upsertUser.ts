@@ -25,6 +25,7 @@ export interface GoogleProfile {
   email: string;
   name: string;
   picture: string;
+  refreshToken?: string;
 }
 
 export interface StoredUser {
@@ -33,6 +34,7 @@ export interface StoredUser {
   email: string;
   name: string;
   picture: string;
+  google_refresh_token?: string;
   created_at: string;
   last_login_at: string;
 }
@@ -48,34 +50,52 @@ export interface StoredUser {
  * @throws         If the Supabase query fails.
  */
 export async function upsertUser(profile: GoogleProfile): Promise<StoredUser> {
-  const { googleId, email, name, picture } = profile;
+  const { googleId, email, name, picture, refreshToken } = profile;
 
-  const { data, error } = await supabaseAdmin
-    .from('users')
-    .upsert(
-      {
-        google_id: googleId,
-        email,
-        name,
-        picture,
-        last_login_at: new Date().toISOString(),
-      },
-      {
-        onConflict: 'google_id',   // update existing row if google_id matches
-        ignoreDuplicates: false,    // always update (not ignore) on conflict
+  const basePayload: Record<string, any> = {
+    google_id: googleId,
+    email,
+    name,
+    picture,
+    last_login_at: new Date().toISOString(),
+  };
+
+  try {
+    const payload = { ...basePayload };
+    if (refreshToken) {
+      payload.google_refresh_token = refreshToken;
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .upsert(payload, {
+        onConflict: 'google_id',
+        ignoreDuplicates: false,
+      })
+      .select('id, google_id, email, name, picture, created_at, last_login_at')
+      .single();
+
+    if (error) {
+      console.warn('[upsertUser] Extended upsert failed, trying base fields fallback:', error.message);
+      // Fallback to base schema fields only
+      const { data: fallbackData, error: fallbackError } = await supabaseAdmin
+        .from('users')
+        .upsert(basePayload, {
+          onConflict: 'google_id',
+          ignoreDuplicates: false,
+        })
+        .select('id, google_id, email, name, picture, created_at, last_login_at')
+        .single();
+
+      if (fallbackError) {
+        throw new Error(`Failed to upsert user: ${fallbackError.message}`);
       }
-    )
-    .select('id, google_id, email, name, picture, created_at, last_login_at')
-    .single();
+      return fallbackData as StoredUser;
+    }
 
-  if (error) {
-    console.error('[upsertUser] Supabase error:', error);
-    throw new Error(`Failed to upsert user: ${error.message}`);
+    return data as StoredUser;
+  } catch (err: any) {
+    console.error('[upsertUser] Unexpected error during upsert:', err.message);
+    throw err;
   }
-
-  if (!data) {
-    throw new Error('[upsertUser] Supabase returned no data after upsert.');
-  }
-
-  return data as StoredUser;
 }

@@ -18,7 +18,8 @@ export class MockCalendarClient implements CalendarClient {
     const todayStr = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
     medicines.forEach((med, index) => {
-      med.suggestedTimes.forEach((time: string, timeIdx: number) => {
+      const times = med.suggestedTimes || med.times || [];
+      times.forEach((time: string, timeIdx: number) => {
         const eventId = `mediflow-evt-${Date.now()}-${index}-${timeIdx}`;
         eventIds.push(eventId);
 

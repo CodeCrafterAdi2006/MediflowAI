@@ -14,18 +14,26 @@ import CaregiverPage from './app/CaregiverPage.jsx'
 // @ts-ignore
 import ProfilePage from './app/ProfilePage.jsx'
 
+// @ts-ignore
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+// @ts-ignore
+import LoginPage from './pages/LoginPage.jsx'
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
 
-      <Route path="/app" element={<AppLayout />}>
-        <Route index element={<Navigate to="upload" replace />} />
-        <Route path="upload" element={<UploadPage />} />
-        <Route path="review" element={<ReviewPage />} />
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="caregiver" element={<CaregiverPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/app" element={<AppLayout />}>
+          <Route index element={<Navigate to="upload" replace />} />
+          <Route path="upload" element={<UploadPage />} />
+          <Route path="review" element={<ReviewPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="caregiver" element={<CaregiverPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

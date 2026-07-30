@@ -9,7 +9,7 @@
  */
 
 const defaultBase = import.meta.env.PROD ? '' : 'http://localhost:5000'
-const API_BASE = (import.meta.env.VITE_API_URL ?? defaultBase).replace(/\/$/, '')
+export const API_BASE = (import.meta.env.VITE_API_URL ?? defaultBase).replace(/\/$/, '')
 
 async function handleResponse(res) {
   const data = await res.json().catch(() => ({}))
@@ -37,24 +37,17 @@ export async function uploadPrescription(file, mealTimes = null) {
 
   const res = await fetch(`${API_BASE}/api/prescriptions/upload`, {
     method: 'POST',
+    credentials: 'include',
     body: formData,
-    // Note: Do NOT set Content-Type header — the browser sets multipart boundary automatically.
   })
 
   return handleResponse(res)
 }
 
-/**
- * POST /api/prescriptions/confirm
- * Confirms the reviewed schedule and triggers Calendar Sync (ICS generation).
- * Returns { success, prescriptionId, syncedEventsCount, icsContent }
- *
- * @param {Array} medicines - Final (possibly user-edited) medicine list.
- * @param {string} patientName - Used for privacy-safe calendar event descriptions.
- */
 export async function confirmPrescription(medicines, patientName = 'Patient') {
   const res = await fetch(`${API_BASE}/api/prescriptions/confirm`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ medicines, patientName }),
   })
@@ -62,38 +55,26 @@ export async function confirmPrescription(medicines, patientName = 'Patient') {
   return handleResponse(res)
 }
 
-/**
- * GET /api/schedule/today
- * Fetches today's chronologically ordered dose schedule.
- * Returns { doses: ScheduleSlot[] }
- */
 export async function getTodaySchedule() {
-  const res = await fetch(`${API_BASE}/api/schedule/today`)
+  const res = await fetch(`${API_BASE}/api/schedule/today`, {
+    credentials: 'include',
+  })
   return handleResponse(res)
 }
 
-/**
- * POST /api/schedule/log-dose
- * Marks a dose as taken, missed, or skipped.
- *
- * @param {string} slotId - The schedule slot ID.
- * @param {string} date - ISO date string (YYYY-MM-DD).
- * @param {'taken'|'missed'|'skipped'} status - The new status.
- */
 export async function logDose(slotId, date, status) {
   const res = await fetch(`${API_BASE}/api/schedule/log-dose`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ slotId, date, status }),
   })
   return handleResponse(res)
 }
 
-/**
- * GET /api/schedule/caregiver/alerts
- * Returns all active missed doses for caregiver alert display.
- */
 export async function getCaregiverAlerts() {
-  const res = await fetch(`${API_BASE}/api/schedule/caregiver/alerts`)
+  const res = await fetch(`${API_BASE}/api/schedule/caregiver/alerts`, {
+    credentials: 'include',
+  })
   return handleResponse(res)
 }

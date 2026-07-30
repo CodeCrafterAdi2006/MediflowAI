@@ -119,12 +119,16 @@ router.get('/google/url', (req: Request, res: Response): void => {
 
     const url = client.generateAuthUrl({
       access_type: 'offline',
-      scope: ['openid', 'email', 'profile'],
+      prompt: 'consent',
+      scope: [
+        'openid',
+        'email',
+        'profile',
+        'https://www.googleapis.com/auth/calendar.events',
+      ],
       response_type: 'code',
       code_challenge: codeChallenge,
       code_challenge_method: CodeChallengeMethod.S256,
-      // prompt: 'consent' forces Google to return a refresh_token every time.
-      // Omit for normal re-logins (refresh_token only returned on first consent).
     });
 
     res.status(200).json({ url });
@@ -155,8 +159,9 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
 
   const codeVerifier: string | undefined = req.cookies?.pkce_verifier;
   if (!codeVerifier) {
-    // pkce_verifier cookie missing — session likely expired or request forged.
-    res.status(400).json({ error: 'PKCE verifier missing. Please start the login flow again.' });
+    // pkce_verifier cookie missing — redirect to login page cleanly
+    console.warn('[callback] PKCE verifier missing cookie.');
+    res.redirect(`${CLIENT_URL}/login?error=pkce_missing`);
     return;
   }
 
@@ -200,14 +205,16 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
       email,
       name,
       picture: picture ?? '',
+      refreshToken: tokens.refresh_token ?? undefined,
     });
 
-    // Sign a JWT with the minimal profile needed by the app.
+    // Sign a JWT with profile + refreshToken needed for Calendar Sync
     const jwtToken = signToken({
       sub: googleId,
       email,
       name,
       picture: picture ?? '',
+      refreshToken: tokens.refresh_token ?? undefined,
     });
 
     // Clear the one-time PKCE verifier cookie.
@@ -216,7 +223,11 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
     // Set the long-lived auth cookie.
     res.cookie('auth_token', jwtToken, authCookieOptions());
 
-    console.log(`[callback] User logged in: ${email} (${googleId})`);
+    if (tokens.refresh_token) {
+      res.cookie('google_rt', tokens.refresh_token, authCookieOptions());
+    }
+
+    console.log(`[callback] User logged in: ${email} (${googleId}) ${tokens.refresh_token ? '[Refresh Token Captured]' : ''}`);
 
     // Redirect to the main app dashboard.
     res.redirect(`${CLIENT_URL}/app/dashboard`);

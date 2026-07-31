@@ -1,5 +1,5 @@
 import { ArrowRight, PlayCircle } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import GetStartedButton from './GetStartedButton.jsx'
 import HeroIllustration from './HeroIllustration.jsx'
 import './Hero.css'
 
@@ -18,9 +18,9 @@ export default function Hero() {
             with smart reminders — built for patients, watched over by caregivers.
           </p>
           <div className="hero__actions">
-            <Link to="/app/upload" className="btn btn-primary">
+            <GetStartedButton className="btn btn-primary">
               Get Started <ArrowRight size={18} />
-            </Link>
+            </GetStartedButton>
             <a href="#solution" className="btn btn-secondary">
               <PlayCircle size={18} /> Learn More
             </a>

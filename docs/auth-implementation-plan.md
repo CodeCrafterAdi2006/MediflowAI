@@ -6,6 +6,32 @@
 
 ---
 
+## Implementation Status — 2026-07-31
+
+**All phases complete.** The plan below was written as a pre-implementation spec; every item has been built and wired.
+
+| Phase | Status | Notes |
+|---|---|---|
+| Backend OAuth routes (`auth.ts`) | ✅ Done | PKCE + rate-limit + Supabase upsert |
+| JWT utility (`jwt.ts`) | ✅ Done | HS256, `signToken` / `verifyToken` |
+| Auth middleware (`requireAuth.ts`) | ✅ Done | Auto-clears expired/tampered cookies |
+| Supabase upsert (`upsertUser.ts`) | ✅ Done | `google_id`, `email`, `name`, `picture`, `last_login_at` |
+| Server wiring (`index.ts`) | ✅ Done | `cookie-parser` + `authRouter` at `/api/auth` |
+| Login page + CSS | ✅ Done | Google "G" button, error banner, theme toggle |
+| `AuthContext` (React) | ✅ Done | `user`, `isLoading`, `logout()` via `useAuth()` |
+| `ProtectedRoute` | ✅ Done | Spinner → `/login` redirect for guests |
+| `App.tsx` routing | ✅ Done | `/app/*` wrapped in `ProtectedRoute` |
+| `AppLayout` logout + avatar | ✅ Done | `useAuth()` in nav header |
+| Root entry-point (`RootRedirect`) | ✅ Done | `/` → `/login` for guests, `/app/dashboard` for authed users |
+| `.env.example` + README docs | ✅ Done | All env vars documented |
+
+**Remaining (pre-deploy, manual steps):**
+- Set Vercel environment variables (§10.3)
+- Register callback URI in Google Cloud Console (§9)
+- Run Supabase `users` table migration (§5)
+
+---
+
 ## 1. Codebase Snapshot (What Exists Today)
 
 | Layer | Technology | Key Facts Found |
@@ -228,11 +254,14 @@ CREATE POLICY "No public access" ON public.users
 
 ### Frontend Routes
 
-| Route | Protected? | Behavior if Unauthenticated |
+| Route | Protected? | Behavior |
 |---|---|---|
-| `/` | No | Landing page — visible to all |
-| `/login` | No (redirect-away) | If already logged in, redirect to `/app/dashboard` |
-| `/app/*` (all sub-routes) | Yes | Redirect to `/login` |
+| `/` | No | `RootRedirect`: if authed → `/app/dashboard`; if guest → `/login`; while loading → blank |
+| `/landing` | No | Original marketing landing page (moved here; `/` no longer shows it) |
+| `/login` | No (redirect-away if authed) | Login page — if already logged in, `ProtectedRoute` and `RootRedirect` will both route away |
+| `/app/*` (all sub-routes) | Yes | `ProtectedRoute` catches guests and redirects to `/login` |
+
+> **Implementation note:** `RootRedirect` renders `null` while `isLoading` is true (the auth cookie check is in-flight), preventing any flash of wrong content before the session is known.
 
 ---
 

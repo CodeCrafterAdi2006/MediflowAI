@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Activity, Menu, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ThemeToggle from './ThemeToggle.jsx'
+import GetStartedButton from './GetStartedButton.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import './Navbar.css'
 
 const LINKS = [
@@ -13,6 +15,7 @@ const LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -40,9 +43,15 @@ export default function Navbar() {
 
         <div className="navbar__actions">
           <ThemeToggle />
-          <Link to="/app/upload" className="btn btn-primary navbar__cta">
-            Get Started
-          </Link>
+          {user ? (
+            <button onClick={logout} className="btn btn-secondary navbar__cta">
+              Log out
+            </button>
+          ) : (
+            <GetStartedButton className="btn btn-primary navbar__cta">
+              Get Started
+            </GetStartedButton>
+          )}
         </div>
 
         <div className="navbar__mobile-actions">
@@ -64,9 +73,18 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          <Link to="/app/upload" className="btn btn-primary" onClick={() => setOpen(false)}>
-            Get Started
-          </Link>
+          {user ? (
+            <button
+              onClick={() => { logout(); setOpen(false) }}
+              className="btn btn-secondary"
+            >
+              Log out
+            </button>
+          ) : (
+            <GetStartedButton className="btn btn-primary" onClick={() => setOpen(false)}>
+              Get Started
+            </GetStartedButton>
+          )}
         </div>
       )}
     </header>

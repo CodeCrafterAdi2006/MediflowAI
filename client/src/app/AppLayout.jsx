@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { Activity, Upload, ClipboardList, LayoutDashboard, Users, Settings, ArrowLeft } from 'lucide-react'
+import { Activity, Upload, ClipboardList, LayoutDashboard, Users, Settings, LogOut } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import './AppLayout.css'
 
 const TABS = [
@@ -12,6 +13,8 @@ const TABS = [
 ]
 
 export default function AppLayout() {
+  const { user, logout } = useAuth()
+
   return (
     <div className="app-shell">
       <header className="app-shell__nav">
@@ -38,10 +41,21 @@ export default function AppLayout() {
 
           <div className="app-shell__actions">
             <ThemeToggle />
-            <Link to="/" className="app-shell__back">
-              <ArrowLeft size={15} />
-              <span>Back to site</span>
-            </Link>
+            
+            <div className="app-shell__user">
+              {user?.picture ? (
+                <img src={user.picture} alt={user?.name} className="app-shell__avatar" referrerPolicy="no-referrer" />
+              ) : (
+                <div className="app-shell__avatar-fallback">
+                  {user?.name?.charAt(0) || 'U'}
+                </div>
+              )}
+            </div>
+
+            <button onClick={logout} className="app-shell__back">
+              <LogOut size={15} />
+              <span>Log out</span>
+            </button>
           </div>
         </div>
       </header>

@@ -113,6 +113,32 @@ router.post('/log-dose', (req: Request, res: Response): void => {
   });
 });
 
+import { sendTelegramAlert } from '../lib/telegram.js';
+import { supabaseAdmin } from '../lib/supabase.js';
+
+/** Helper to dispatch Telegram alerts for missed doses */
+async function dispatchMissedDoseTelegramAlert(medicineName: string, dosage: string, scheduledTime: string) {
+  try {
+    const { data: users } = await supabaseAdmin
+      .from('users')
+      .select('telegram_chat_id, name')
+      .not('telegram_chat_id', 'is', null);
+
+    if (users && users.length > 0) {
+      for (const u of users) {
+        if (u.telegram_chat_id) {
+          const msg = `🚨 <b>Caregiver Alert — MediFlow AI</b>\n\nPatient <b>${u.name}</b> missed their <b>${scheduledTime}</b> dose of <b>${medicineName} (${dosage})</b>.`;
+          sendTelegramAlert(u.telegram_chat_id, msg).catch((err) =>
+            console.error('[schedule] Telegram dispatch error:', err.message)
+          );
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn('[schedule] Failed to query Telegram caregivers:', err.message);
+  }
+}
+
 /**
  * POST /api/schedule/simulate-time
  * Core Hackathon Demo Endpoint: Advances simulated time by N hours.
@@ -130,6 +156,10 @@ router.post('/simulate-time', (req: Request, res: Response): void => {
     if (dose.status === 'pending' && doseMins < simulatedCurrentMinutes) {
       newlyMissedCount++;
       console.log(`[simulate-time] Dose ${dose.id} (${dose.medicineName} at ${dose.scheduledTime}) is now OVERDUE -> Marked MISSED`);
+      
+      // Dispatch Telegram Alert
+      dispatchMissedDoseTelegramAlert(dose.medicineName, dose.dosage, dose.scheduledTime);
+
       return {
         ...dose,
         status: 'missed',

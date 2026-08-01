@@ -21,6 +21,7 @@ export interface AuthPayload {
   email: string;
   name: string;
   picture: string;
+  refreshToken?: string;
   iat?: number;
   exp?: number;
 }

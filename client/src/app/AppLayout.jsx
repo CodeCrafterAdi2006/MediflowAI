@@ -39,9 +39,9 @@ export default function AppLayout() {
             ))}
           </nav>
 
-          <div className="app-shell__actions">
+          <div className="app-shell__actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <ThemeToggle />
-            
+
             <div className="app-shell__user">
               {user?.picture ? (
                 <img src={user.picture} alt={user?.name} className="app-shell__avatar" referrerPolicy="no-referrer" />
@@ -50,6 +50,7 @@ export default function AppLayout() {
                   {user?.name?.charAt(0) || 'U'}
                 </div>
               )}
+              {user?.name && <span className="app-shell__username">{user.name}</span>}
             </div>
 
             <button onClick={logout} className="app-shell__back">

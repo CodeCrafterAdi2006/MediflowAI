@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import prescriptionsRouter from './routes/prescriptions.js';
 import scheduleRouter from './routes/schedule.js';
 import authRouter from './routes/auth.js';
+import telegramRouter from './routes/telegram.js';
 
 dotenv.config();
 
@@ -48,6 +49,9 @@ app.get('/health', (req, res) => {
 // Auth Routes (Phase 4 — Google OAuth + JWT session)
 // NOTE: no bare /auth backup — auth callback URI must be exact (see plan §11 risk #7)
 app.use('/api/auth', authRouter);
+
+// Telegram Webhook & Linkage Routes
+app.use('/api/telegram', telegramRouter);
 
 // Prescriptions API Routes (Phase 2.4)
 app.use('/api/prescriptions', prescriptionsRouter);

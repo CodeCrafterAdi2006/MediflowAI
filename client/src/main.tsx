@@ -4,15 +4,19 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 // @ts-ignore
 import { MedicationProvider } from './context/MedicationContext.jsx'
+// @ts-ignore
+import { AuthProvider } from './context/AuthContext.jsx'
 import './index.css'
 import './darkMode.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <MedicationProvider>
-        <App />
-      </MedicationProvider>
+      <AuthProvider>
+        <MedicationProvider>
+          <App />
+        </MedicationProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )

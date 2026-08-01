@@ -4,6 +4,7 @@ import { UploadCloud, ImageUp, Sparkles, X, AlertTriangle } from 'lucide-react'
 import { useMedication } from '../context/MedicationContext.jsx'
 import { SAMPLE_EXTRACTION } from '../data/mockData.js'
 import { uploadPrescription } from '../lib/api.js'
+import imageCompression from 'browser-image-compression'
 import Spinner from './components/Spinner.jsx'
 import './UploadPage.css'
 
@@ -51,6 +52,14 @@ export default function UploadPage() {
     setFallbackWarning(false)
 
     try {
+      setStatusMsg('Compressing image for upload...')
+      const options = {
+        maxSizeMB: 1, // Keep under 1MB to avoid Vercel 4.5MB serverless limit
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      }
+      const compressedFile = await imageCompression(file, options)
+
       setStatusMsg('Uploading prescription...')
       // Small delay so the status message is visible before the heavy AI call
       await new Promise((r) => setTimeout(r, 400))
@@ -60,7 +69,7 @@ export default function UploadPage() {
         ? { breakfast: profile.breakfast, lunch: profile.lunch, dinner: profile.dinner, bedtime: profile.bedtime }
         : null
 
-      const result = await uploadPrescription(file, mealTimes)
+      const result = await uploadPrescription(compressedFile, mealTimes)
 
       if (!result.medicines || result.medicines.length === 0) {
         setErrorMsg(result.error || 'No valid prescription or medication label detected in this image. Please upload a clear photo of a medical prescription.')

@@ -58,18 +58,27 @@ The Express backend lives in `/server` and runs in TypeScript.
     "test": "vitest run"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.1.0",
+    "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.39.0",
+    "@types/multer": "^2.2.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "googleapis": "^129.0.0"
+    "express-rate-limit": "^8.6.1",
+    "google-auth-library": "^10.9.1",
+    "googleapis": "^129.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.10.0",
     "tsx": "^4.6.0",
+    "typescript": "^5.3.3",
     "vitest": "^1.0.0"
   }
 }

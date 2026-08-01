@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Trash2, ArrowRight, Pencil, AlertTriangle, MessageSquareText } from 'lucide-react'
 import { useMedication, isSleepWarning } from '../context/MedicationContext.jsx'
+import { confirmPrescription } from '../lib/api.js'
 import { FOOD_TIMING_OPTIONS, FREQUENCY_OPTIONS } from '../data/mockData.js'
 import Spinner from './components/Spinner.jsx'
 import './ReviewPage.css'
@@ -105,16 +106,15 @@ export default function ReviewPage() {
     // request is expected to fail — we log it and continue locally either way,
     // with a short minimum delay so the spinner is visible.
     const [syncResult] = await Promise.allSettled([
-      fetch('/api/prescriptions/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ medicines: cleaned }),
-      }),
+      confirmPrescription(cleaned),
       new Promise((resolve) => setTimeout(resolve, 900)),
     ])
 
     if (syncResult.status === 'rejected') {
-      console.warn('Prescription sync endpoint unavailable in this prototype — continuing locally.')
+      console.error('Prescription sync failed:', syncResult.reason);
+      alert(`Server error during sync: ${syncResult.reason?.message || 'Please try again.'}`);
+    } else if (syncResult.value?.calendarSyncWarning) {
+      alert(`Schedule confirmed, but Calendar Sync failed: ${syncResult.value.calendarSyncWarning}`);
     }
 
     generateSchedule(cleaned)
